@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <meta charset="utf-8">
   
   <title>Hexo</title>
   <meta name="author" content="John Doe">
@@ -19,14 +19,14 @@
   <link href="/favicon.png" rel="icon">
   <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
   
 
 </head>
 </html>
 
 <body>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><header id="header" class="inner"><div class="alignleft">
+  <header id="header" class="inner"><div class="alignleft">
   <h1><a href="/">Hexo</a></h1>
   <h2><a href="/"></a></h2>
 </div>
@@ -44,6 +44,96 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2020-01-30T14:41:42.000Z"><a href="/2020/01/30/gdb调试/">2020-01-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2020/01/30/gdb调试/">gdb</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="启动调试"><a href="#启动调试" class="headerlink" title="启动调试"></a>启动调试</h2><p>gdb调试需要使用可执行文件中的符号表等调试信息。 编译时加上-g参数，保留调试信息，否则不能使用GDB进行调试。</p>
+<p>如果没有调试信息，<code>gdb file</code>指令会提示no debugging symbols found。</p>
+<p>gdb还可以用于调试核心转储文件，当程序core dump时，可能会产生core文件，它能够很大程序帮助我们定位问题。但前提是系统没有限制core文件的产生。可以使用命令<code>limit -c</code>查看，如果结果是0，程序core dump了也不会有core文件留下。需要使用如下命令进行设置<code>unlimit-c unlimied</code>。使用如下命令调试core文件<br><code>gdb 程序文件名 core文件名</code></p>
+<p>常用指令有：</p>
+<ul>
+<li>run/r 运行程序，可以带着程序运行所需要的参数</li>
+<li>continue/c，继续运行直到下个断点</li>
+<li>next/n，单步跟踪程序，当遇到函数调用时，也不进入此函数体；此命令同 step 的主要区别是，step 遇到用户自定义的函数，将步进到函数中去运行，而 next 则直接调用函数，不会进入到函数体内</li>
+<li>step/s，单步调试，如果有函数调用，则进入函数；与命令n不同，n是不进入调用的函数的</li>
+<li>until/u，当你厌倦了在一个循环体内单步跟踪时，这个命令可以运行程序直到退出循环体。</li>
+<li>until+行号： 运行至某行，不仅仅用来跳出循环</li>
+<li>finish： 运行程序，直到当前函数完成返回，并打印函数返回时的堆栈地址和返回值及参数值等信息。</li>
+<li>call 函数（参数)：调用程序中可见的函数，并传递“参数”，如：call gdb_test(55)</li>
+<li>quit/q，退出gdb</li>
+</ul>
+<h2 id="断点相关指令"><a href="#断点相关指令" class="headerlink" title="断点相关指令"></a>断点相关指令</h2><ul>
+<li>break n /b n，在第n行处设置断点（可以带上代码路径和代码名称： b OAGUPDATE.cpp:578）</li>
+<li>b fn1 if a＞b，条件断点设置</li>
+<li>break func/b func，在函数func()的入口处设置断点，如：break cb_button</li>
+<li>delete n，删除第n个断点</li>
+<li>disable 断点号n，暂停第n个断点</li>
+<li>enable 断点号n，开启第n个断点</li>
+<li>clear 行号n：清除第n行的断点</li>
+<li>info b （info breakpoints），显示当前程序的断点设置情况</li>
+<li>delete breakpoints：清除所有断点</li>
+</ul>
+<h2 id="查看源代码"><a href="#查看源代码" class="headerlink" title="查看源代码"></a>查看源代码</h2><ul>
+<li>list /l ，其作用就是列出程序的源代码，默认每次显示10行。</li>
+<li>list 行号，将显示当前文件以“行号”为中心的前后10行代码，如：list 12</li>
+<li>list 函数名，将显示“函数名”所在函数的源代码，如：list main</li>
+<li>list ，将接着上一次 list 命令的，输出下边的内容</li>
+</ul>
+<p>##打印表达式</p>
+<p>print 表达式， 其中“表达式”可以是任何当前正在被测试程序的有效表达式，比如当前正在调试C语言的程序，那么“表达式”可以是任何C语言的有效表达式，包括数字，变量甚至是函数调用。</p>
+<ul>
+<li>print a，将显示整数 a 的值</li>
+<li>print ++a，将把 a 中的值加1,并显示出来</li>
+<li>print name，将显示字符串 name 的值</li>
+<li>print gdb_test(22)：将以整数22作为参数调用 gdb_test() 函数</li>
+<li>print gdb_test(a)：将以变量 a 作为参数调用 gdb_test() 函数</li>
+</ul>
+<p>display 表达式，在单步运行时将非常有用，使用display命令设置一个表达式后，它将在每次单步进行指令后，紧接着输出被设置的表达式及值。如： </p>
+<ul>
+<li>display awatch 表达式，设置一个监视点，一旦被监视的“表达式”的值改变，gdb将强行终止正在被调试的程序。</li>
+<li>watch a</li>
+<li>whatis，查询变量或函数</li>
+<li>info function： 查询函数扩展info </li>
+<li>locals： 显示当前堆栈页的所有变量</li>
+</ul>
+<p>##查询运行信息</p>
+<ul>
+<li>where/bt ，当前运行的堆栈列表</li>
+<li>bt backtrace 显示当前调用堆栈</li>
+<li>up/down 改变堆栈显示的深度</li>
+<li>set args 参数，指定运行时的参数</li>
+<li>show args，查看设置好的参数</li>
+<li>info program，来查看程序的是否在运行，进程号，被暂停的原因</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article class="post">
   
   <div class="post-content">
@@ -216,20 +306,13 @@
 </div>
 
   
-<div class="widget tag">
-  <h3 class="title">Categories</h3>
-  <ul class="entry">
-  
-    <li><a href="/categories/test-test/">test/test</a><small>0</small></li>
-  
-  </ul>
-</div>
-
 
   
 <div class="widget tag">
   <h3 class="title">Tags</h3>
   <ul class="entry">
+  
+    <li><a href="/tags/hacking/">hacking</a><small>1</small></li>
   
     <li><a href="/tags/捣腾/">捣腾</a><small>1</small></li>
   
@@ -258,7 +341,7 @@
 (function($){
   $('.fancybox').fancybox();
 })(jQuery);
-</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</script>
 
 </body>
 </html>
