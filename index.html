@@ -66,6 +66,220 @@
     <header class="title">
       
         <h1>
+          <a href="/2020/05/27/RE-writeup-0/">RE-writeup</a>
+        </h1>
+      
+      <div class="ListMeta">
+  <time datetime="2020-05-26T23:56:29.000Z" itemprop="datePublished">
+    2020-05-27
+  </time>
+  
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/hacking/">hacking</a> }
+  </li>
+
+
+  </ul>
+  
+  
+</div>
+
+    </header>
+    <div>
+      
+        <p>github源<a href="https://github.com/wapiflapi/exrs/reverse" target="_blank" rel="noopener">https://github.com/wapiflapi/exrs/reverse</a><br>逆向练习，输入正确flag，使得程序运行时打印<strong>password OK</strong></p>
+<h2 id="r1-硬编码0"><a href="#r1-硬编码0" class="headerlink" title="r1-硬编码0"></a>r1-硬编码0</h2><p>此题中flag硬编码在二进制中，可以在r2中iz直接查看data段字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ r2 r1 -c &quot;aaa;iz&quot;</span><br></pre></td></tr></table></figure>
+<p>显示如下</p>
+<p><img src="/.com//1-1.png" alt></p>
+<p>通过分析main函数，可以看到直接比较输入和该硬编码字符串，因此得到</p>
+<p>flag={my_password_to_easy}</p>
+<h2 id="r2-硬编码1"><a href="#r2-硬编码1" class="headerlink" title="r2-硬编码1"></a>r2-硬编码1</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; aaa</span><br><span class="line">&gt; fs symbols ;f~sym </span><br><span class="line">&gt; pdf @main</span><br></pre></td></tr></table></figure>
+<p>可以看到输入放到sym.compare_pwd进行比较，我们查看该函数调用strcmp比较输入和sym.get_pwd计算得到的输出。<br><img src="/.com//2-1.png" alt><br>进入该函数，可以得到产生flag的机制<br><img src="/.com//2-2.png" alt></p>
+<p>该函数将输入地址中的字符串xor 0x24，输入地址上存放：</p>
+<p>rbp-0x20:0x7b175614497b5d49</p>
+<p>rbp-0x18:0x547b175651474157</p>
+<p>rbp-0x10:0x4053</p>
+<p>因此将该字符串进行xor操作，得到_3r0m_ymp_3rucesdw, 但校验该flag，显示错误。猜测是大小端的问题，我们查看下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; e cfg.bigendian</span><br><span class="line">&gt; e cfg.bigendian=True</span><br></pre></td></tr></table></figure>
+<p>flag ={my_m0r3_secur3_pwd}</p>
+<p>更简单的做法是使用动态调试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; ood mytry</span><br><span class="line">&gt; db 0x004006d5;dc</span><br><span class="line">&gt; ps @rdi</span><br></pre></td></tr></table></figure>
+<h2 id="r3-硬编码2"><a href="#r3-硬编码2" class="headerlink" title="r3-硬编码2"></a>r3-硬编码2</h2><p>查看main函数，看到输入经过sym.compare_pwd函数进行比较。该函数调用my_secure_test进行比较，该函数逐个字符进行比较，因此可以得到<br><img src="/.com//3-2.png" alt><br>flag={1337_pwd}</p>
+<p>##r4-冗余</p>
+<p>直接iz查看字符串，可以看到有9991个明文字符串，因此r1中解法不再适用。查看main函数，可以看到函数sym.check_password中进行比较。<br><img src="/.com//4-1.png" alt><br>该函数传入3个参数，分别为local_13890,输入input，0x539, 其中local_13890上的数据由0x4281e0上的地址通过memcpy得到，可以看到该地址上存放的指针指为0x0040085f<br><img src="/.com//4-2.png" alt><br>该函数比较输入字符串和输入指针偏移为0x539<em>8+0x539</em>8处的字符串是否相同，因此可以得到flag为</p>
+<p>flag={single_brandy}<br><img src="/.com//4-3.png" alt></p>
+<h2 id="r5-混淆"><a href="#r5-混淆" class="headerlink" title="r5-混淆"></a>r5-混淆</h2><p>该文件中用户输入在sym.check_password中进行。该函数中使用到随机数对过程进行混淆<br><img src="/.com//5-1.png" alt></p>
+<p>该函数过程反编译如下<br><img src="/.com//5-2.png" alt></p>
+<p>函数调用的random使用stdin.h中的伪随机数生成函数，由于没有配置种子的步骤，该函数生成的随机数序列是固定的，因此可以模拟执行该段代码，获取flag的值。</p>
+<p>但仔细观察该函数，输入被拷贝到buf中后，在循环中不停减去随机数相关的变量v3。循环终止条件为v4==0,该条件只有在长度为0x28的delta字符数组全0时成立。要达到该条件，原始的delta扣掉v3后应该为全零，即v3=delta。因此，flag[i] = delta[i] + master[i], 长度为0x28.<br><img src="/.com//5-3.png" alt></p>
+<p>我们得到flag={well_done_now_go_on_irc_and_ask_for_more}</p>
+<p>##r6-冗余</p>
+<p>r6中用户输入在sym.check_password中进行校验。该校验过程持续对输入各个字符进行xor操作，并将结果做叠加。<br><img src="/.com//6-1.png" alt></p>
+<ul>
+<li><p>内层循环的xor操作循环43次，后42次相互抵消，剩余异或a[i]一次</p>
+</li>
+<li><p>三个内循环，异或在一起，贡献xor a[i]一次</p>
+</li>
+<li><p>该校验成立的条件为输入a1逐位xor key1和key2后总的异或和为0。</p>
+</li>
+<li><p>满足该条件的输入不唯一，最简单的即为key1^key2</p>
+</li>
+</ul>
+<p>得到flag={dude_you_killed_it_gg}</p>
+<p>##r7-md5爆破</p>
+<p>r7中校验输入的md5 hash值，md5 hash可以使用字典爆破，该题目中问题在于确定大小端顺序。</p>
+<p>md5值有16byte，存储在两个qword中，分别为</p>
+<p>0x8E590EA70A0785EC和0xBCFA992DE8CB72DA，r2中使用小端表示，因此对应的md5值应为</p>
+<p>‘EC85070AA70E598EDA72CBE82D99FABC’<br><img src="/.com//7.png" alt></p>
+<p>flag={md5password}</p>
+<h2 id="r8-未初始化"><a href="#r8-未初始化" class="headerlink" title="r8-未初始化"></a>r8-未初始化</h2><p>该程序希望输入IPV6格式输入：</p>
+<p>XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：，并对输入进行解析和判断，判断输入格式合法后，拷贝并迭代进行md5计算，直接破解要求找到md5的“不动点”，这个已经超出了普通难度的范畴。<br><img src="/.com//8-3.png" alt></p>
+<p>我们注意到，如果25行中的循环条件不满足（即j&lt;=0）,则可以跳过烦人的md5计算，结果v5和v6自然而然相等。IPV6格式要求XXXX为0-f的数字，因此在parse_cereal函数中只有2Byte，这样的两个数相加无法造成溢出。</p>
+<p>我们注意到parse_cereal函数中解析时存在逻辑漏洞，对于X为：的情况未进行有效的初始化，在未初始化内存默认为ff的情况下，即可造成溢出。由于在print_cereal中对第6个段有大于0的检查，因此我们可以构造输入</p>
+<p>flag={1111:1111:1111:1111:1111:1111:1111:::::}</p>
+<h2 id="r9-伪随机及SAT"><a href="#r9-伪随机及SAT" class="headerlink" title="r9-伪随机及SAT"></a>r9-伪随机及SAT</h2><p>该题目中check函数看起来很简单，通过伪随机数加掩后，输入的字符串s进行放射迭代：</p>
+<p>令a = 0x1337，b=0x31337,</p>
+<p>sum0 = a*s[-1]+b</p>
+<p>sum1 = sum0*s[-2]+b</p>
+<p>sum2 = sum1*s[-3]+b</p>
+<p>…</p>
+<p>sumN = sumN-1*s[0]+b</p>
+<p>要求sumN==0xFD0970E7,其中N为s的长度，N未知。</p>
+<p>该怎么求解呢？我们可以倒着看，</p>
+<p>(sumN-b)=sumN-1*s[0]</p>
+<p>因此s[0]|(sumN-b),即s[0]为(sumN-b)的一个因子。但(sumN-b)进行因子分解后，有很多因子，哪一个才是呢？</p>
+<p>该问题是一个典型的BFS/DFS搜索问题，如果我们每次选择的因子是正确的话，最后我们会得到正确的a。这里我采用BFS方法进行搜索。具体代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import math</span><br><span class="line">import queue</span><br><span class="line"></span><br><span class="line">aa=0x1337</span><br><span class="line">bb=0x31337</span><br><span class="line">target=0xFD0970E7</span><br><span class="line"></span><br><span class="line">def factor(n):</span><br><span class="line">    rslt = []</span><br><span class="line">    upper = math.floor(math.sqrt(n)+1)</span><br><span class="line">    for i in range(2,upper):</span><br><span class="line">        if n%i==0:</span><br><span class="line">            rslt = rslt + [i,n//i]</span><br><span class="line">    rslt = list(set(rslt))</span><br><span class="line">    rslt.sort()</span><br><span class="line">    return rslt</span><br><span class="line"></span><br><span class="line">def BFS(value):</span><br><span class="line">    q = queue.Queue()</span><br><span class="line">    q.put([[],value])</span><br><span class="line">    rslt = []</span><br><span class="line">    cnt = 0</span><br><span class="line">    while q.qsize() &gt; 0:</span><br><span class="line">        cnt += 1</span><br><span class="line">        cur = q.get()</span><br><span class="line">        flyst,v = cur[0],cur[1]</span><br><span class="line">        if v==aa:</span><br><span class="line">            rslt.append(flyst)</span><br><span class="line">            continue</span><br><span class="line">        if v &lt;= bb:</span><br><span class="line">            continue</span><br><span class="line">        ff = factor(v-bb)</span><br><span class="line"></span><br><span class="line">        for a in ff:</span><br><span class="line">            if a &lt; 256:</span><br><span class="line">                q.put([flyst+[a],(v-bb)//a])</span><br><span class="line">    return cnt,rslt</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">ans = BFS(target)</span><br><span class="line"></span><br><span class="line">print(f&quot;after &#123;ans[0]&#125; loops, found:&quot;,ans[1])</span><br></pre></td></tr></table></figure>
+<p>结果显示<strong>after 7879 loops, found: []</strong>。难道是我们的算法写的有问题？校验一下试试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">def makeup(s):</span><br><span class="line">    total=aa</span><br><span class="line">    for i in s[::-1]:</span><br><span class="line">        total = total*i+bb</span><br><span class="line">    return total</span><br><span class="line"></span><br><span class="line">def test():    </span><br><span class="line">    case1 = [20+i for i in range(5)]</span><br><span class="line">    testv = makeup(case1)</span><br><span class="line">    ans = BFS(testv)</span><br><span class="line">    print(f&quot;after &#123;ans[0]&#125; loops, found? &#123;case1 in ans[1]&#125;&quot;,)</span><br></pre></td></tr></table></figure>
+<p>结果显示<strong>after 61254 loops, found? True</strong>。我们的算法没有问题，因此考虑有溢出的情况，我们使用如下代码搜索一组解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def overflow_search():</span><br><span class="line">    for i in range(100):</span><br><span class="line">        ans = BFS(target+(2&lt;&lt;32)*i)</span><br><span class="line">        cnt += ans[0]</span><br><span class="line">        print(f&quot;for overflow-&#123;i&#125;, search &#123;ans[0]&#125; loops for nothing&quot;)</span><br><span class="line"></span><br><span class="line">        if len(ans[1])&gt;0:</span><br><span class="line">            print(f&quot;after &#123;cnt&#125; loops, with overflow&#123;i&#125;,found:&quot;,ans[1])</span><br><span class="line">            return a[1]</span><br></pre></td></tr></table></figure>
+<p>在溢出为11时，我们得到了一组解[4, 25, 3, 7, 17, 3, 34]，再利用伪随机数序列的固定性，我们可以构造如下函数进行求解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//c code</span><br><span class="line"></span><br><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">#include&lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">unsigned int aa[7] = &#123;4, 25, 3, 7, 17, 3, 34&#125;;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line">     int a = (unsigned int)random()&amp;0xff;</span><br><span class="line">     int i,j;</span><br><span class="line">     for(i = 0; i &lt; a; i++)&#123;</span><br><span class="line">         for(j = 0; j &lt; 7; j++)</span><br><span class="line">             aa[j] ^= random()&amp;0xff;</span><br><span class="line">     &#125;</span><br><span class="line">     for(j = 0; j &lt; 7; j++)&#123;</span><br><span class="line">         printf(&quot;\\x%02x&quot;,aa[j]);</span><br><span class="line">     &#125;</span><br><span class="line">     printf(&quot;\n&quot;);</span><br><span class="line">     return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>flag = {“\x31\x7a\x79\x8c\x56\xaa\x74”}</p>
+
+      
+    </div>
+</article>
+
+    </li>
+  
+    <li>
+      <article class="ListView">
+    <header class="title">
+      
+        <h1>
+          <a href="/2020/05/27/re-writeup/">re-writeup</a>
+        </h1>
+      
+      <div class="ListMeta">
+  <time datetime="2020-05-26T23:46:42.000Z" itemprop="datePublished">
+    2020-05-27
+  </time>
+  
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/hacking/">hacking</a> }
+  </li>
+
+
+  </ul>
+  
+  
+</div>
+
+    </header>
+    <div>
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>github源<a href="https://github.com/wapiflapi/exrs/reverse" target="_blank" rel="noopener">https://github.com/wapiflapi/exrs/reverse</a><br>逆向练习，输入正确flag，使得程序运行时打印<strong>password OK</strong></p>
+<h2 id="r1-硬编码0"><a href="#r1-硬编码0" class="headerlink" title="r1-硬编码0"></a>r1-硬编码0</h2><p>此题中flag硬编码在二进制中，可以在r2中iz直接查看data段字符串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ r2 r1 -c &quot;aaa;iz&quot;</span><br></pre></td></tr></table></figure>
+<p>显示如下</p>
+<p><img src="/.com//reverse/r1-1.png" alt></p>
+<p>通过分析main函数，可以看到直接比较输入和该硬编码字符串，因此得到</p>
+<p>flag={my_password_to_easy}</p>
+<h2 id="r2-硬编码1"><a href="#r2-硬编码1" class="headerlink" title="r2-硬编码1"></a>r2-硬编码1</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; aaa</span><br><span class="line">&gt; fs symbols ;f~sym </span><br><span class="line">&gt; pdf @main</span><br></pre></td></tr></table></figure>
+<p>可以看到输入放到sym.compare_pwd进行比较，我们查看该函数调用strcmp比较输入和sym.get_pwd计算得到的输出。<br><img src="/.com//reverse/r2-1.png" alt><br>进入该函数，可以得到产生flag的机制<br><img src="/.com//reverse/r2-2.png" alt></p>
+<p>该函数将输入地址中的字符串xor 0x24，输入地址上存放：</p>
+<p>rbp-0x20:0x7b175614497b5d49</p>
+<p>rbp-0x18:0x547b175651474157</p>
+<p>rbp-0x10:0x4053</p>
+<p>因此将该字符串进行xor操作，得到_3r0m_ymp_3rucesdw, 但校验该flag，显示错误。猜测是大小端的问题，我们查看下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; e cfg.bigendian</span><br><span class="line">&gt; e cfg.bigendian=True</span><br></pre></td></tr></table></figure>
+<p>flag ={my_m0r3_secur3_pwd}</p>
+<p>更简单的做法是使用动态调试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; ood mytry</span><br><span class="line">&gt; db 0x004006d5;dc</span><br><span class="line">&gt; ps @rdi</span><br></pre></td></tr></table></figure>
+<h2 id="r3-硬编码2"><a href="#r3-硬编码2" class="headerlink" title="r3-硬编码2"></a>r3-硬编码2</h2><p>查看main函数，看到输入经过sym.compare_pwd函数进行比较。该函数调用my_secure_test进行比较，该函数逐个字符进行比较，因此可以得到<br><img src="/.com//reverse/r3-2.png" alt><br>flag={1337_pwd}</p>
+<p>##r4-冗余</p>
+<p>直接iz查看字符串，可以看到有9991个明文字符串，因此r1中解法不再适用。查看main函数，可以看到函数sym.check_password中进行比较。<br><img src="/.com//reverse/r4-1.png" alt><br>该函数传入3个参数，分别为local_13890,输入input，0x539, 其中local_13890上的数据由0x4281e0上的地址通过memcpy得到，可以看到该地址上存放的指针指为0x0040085f<br><img src="/.com//reverse/r4-2.png" alt><br>该函数比较输入字符串和输入指针偏移为0x539<em>8+0x539</em>8处的字符串是否相同，因此可以得到flag为</p>
+<p>flag={single_brandy}<br><img src="/.com//reverse/r4-3.png" alt></p>
+<h2 id="r5-混淆"><a href="#r5-混淆" class="headerlink" title="r5-混淆"></a>r5-混淆</h2><p>该文件中用户输入在sym.check_password中进行。该函数中使用到随机数对过程进行混淆<br><img src="/.com//reverse/r5-1.png" alt></p>
+<p>该函数过程反编译如下<br><img src="/.com//reverse/r5-2.png" alt></p>
+<p>函数调用的random使用stdin.h中的伪随机数生成函数，由于没有配置种子的步骤，该函数生成的随机数序列是固定的，因此可以模拟执行该段代码，获取flag的值。</p>
+<p>但仔细观察该函数，输入被拷贝到buf中后，在循环中不停减去随机数相关的变量v3。循环终止条件为v4==0,该条件只有在长度为0x28的delta字符数组全0时成立。要达到该条件，原始的delta扣掉v3后应该为全零，即v3=delta。因此，flag[i] = delta[i] + master[i], 长度为0x28.<br><img src="/.com//reverse/r5-3.png" alt></p>
+<p>我们得到flag={well_done_now_go_on_irc_and_ask_for_more}</p>
+<p>##r6-冗余</p>
+<p>r6中用户输入在sym.check_password中进行校验。该校验过程持续对输入各个字符进行xor操作，并将结果做叠加。<br><img src="/.com//reverse/r6-1.png" alt></p>
+<ul>
+<li><p>内层循环的xor操作循环43次，后42次相互抵消，剩余异或a[i]一次</p>
+</li>
+<li><p>三个内循环，异或在一起，贡献xor a[i]一次</p>
+</li>
+<li><p>该校验成立的条件为输入a1逐位xor key1和key2后总的异或和为0。</p>
+</li>
+<li><p>满足该条件的输入不唯一，最简单的即为key1^key2</p>
+</li>
+</ul>
+<p>得到flag={dude_you_killed_it_gg}</p>
+<p>##r7-md5爆破</p>
+<p>r7中校验输入的md5 hash值，md5 hash可以使用字典爆破，该题目中问题在于确定大小端顺序。</p>
+<p>md5值有16byte，存储在两个qword中，分别为</p>
+<p>0x8E590EA70A0785EC和0xBCFA992DE8CB72DA，r2中使用小端表示，因此对应的md5值应为</p>
+<p>‘EC85070AA70E598EDA72CBE82D99FABC’<br><img src="/.com//reverse/r7.png" alt></p>
+<p>flag={md5password}</p>
+<h2 id="r8-未初始化"><a href="#r8-未初始化" class="headerlink" title="r8-未初始化"></a>r8-未初始化</h2><p>该程序希望输入IPV6格式输入：</p>
+<p>XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：，并对输入进行解析和判断，判断输入格式合法后，拷贝并迭代进行md5计算，直接破解要求找到md5的“不动点”，这个已经超出了普通难度的范畴。<br><img src="/.com//reverse/r8-3.png" alt></p>
+<p>我们注意到，如果25行中的循环条件不满足（即j&lt;=0）,则可以跳过烦人的md5计算，结果v5和v6自然而然相等。IPV6格式要求XXXX为0-f的数字，因此在parse_cereal函数中只有2Byte，这样的两个数相加无法造成溢出。</p>
+<p>我们注意到parse_cereal函数中解析时存在逻辑漏洞，对于X为：的情况未进行有效的初始化，在未初始化内存默认为ff的情况下，即可造成溢出。由于在print_cereal中对第6个段有大于0的检查，因此我们可以构造输入</p>
+<p>flag={1111:1111:1111:1111:1111:1111:1111:::::}</p>
+<h2 id="r9-伪随机及SAT"><a href="#r9-伪随机及SAT" class="headerlink" title="r9-伪随机及SAT"></a>r9-伪随机及SAT</h2><p>该题目中check函数看起来很简单，通过伪随机数加掩后，输入的字符串s进行放射迭代：</p>
+<p>令a = 0x1337，b=0x31337,</p>
+<p>sum0 = a*s[-1]+b</p>
+<p>sum1 = sum0*s[-2]+b</p>
+<p>sum2 = sum1*s[-3]+b</p>
+<p>…</p>
+<p>sumN = sumN-1*s[0]+b</p>
+<p>要求sumN==0xFD0970E7,其中N为s的长度，N未知。</p>
+<p>该怎么求解呢？我们可以倒着看，</p>
+<p>(sumN-b)=sumN-1*s[0]</p>
+<p>因此s[0]|(sumN-b),即s[0]为(sumN-b)的一个因子。但(sumN-b)进行因子分解后，有很多因子，哪一个才是呢？</p>
+<p>该问题是一个典型的BFS/DFS搜索问题，如果我们每次选择的因子是正确的话，最后我们会得到正确的a。这里我采用BFS方法进行搜索。具体代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">import math</span><br><span class="line">import queue</span><br><span class="line"></span><br><span class="line">aa=0x1337</span><br><span class="line">bb=0x31337</span><br><span class="line">target=0xFD0970E7</span><br><span class="line"></span><br><span class="line">def factor(n):</span><br><span class="line">    rslt = []</span><br><span class="line">    upper = math.floor(math.sqrt(n)+1)</span><br><span class="line">    for i in range(2,upper):</span><br><span class="line">        if n%i==0:</span><br><span class="line">            rslt = rslt + [i,n//i]</span><br><span class="line">    rslt = list(set(rslt))</span><br><span class="line">    rslt.sort()</span><br><span class="line">    return rslt</span><br><span class="line"></span><br><span class="line">def BFS(value):</span><br><span class="line">    q = queue.Queue()</span><br><span class="line">    q.put([[],value])</span><br><span class="line">    rslt = []</span><br><span class="line">    cnt = 0</span><br><span class="line">    while q.qsize() &gt; 0:</span><br><span class="line">        cnt += 1</span><br><span class="line">        cur = q.get()</span><br><span class="line">        flyst,v = cur[0],cur[1]</span><br><span class="line">        if v==aa:</span><br><span class="line">            rslt.append(flyst)</span><br><span class="line">            continue</span><br><span class="line">        if v &lt;= bb:</span><br><span class="line">            continue</span><br><span class="line">        ff = factor(v-bb)</span><br><span class="line"></span><br><span class="line">        for a in ff:</span><br><span class="line">            if a &lt; 256:</span><br><span class="line">                q.put([flyst+[a],(v-bb)//a])</span><br><span class="line">    return cnt,rslt</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">ans = BFS(target)</span><br><span class="line"></span><br><span class="line">print(f&quot;after &#123;ans[0]&#125; loops, found:&quot;,ans[1])</span><br></pre></td></tr></table></figure>
+<p>结果显示<strong>after 7879 loops, found: []</strong>。难道是我们的算法写的有问题？校验一下试试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">def makeup(s):</span><br><span class="line">    total=aa</span><br><span class="line">    for i in s[::-1]:</span><br><span class="line">        total = total*i+bb</span><br><span class="line">    return total</span><br><span class="line"></span><br><span class="line">def test():    </span><br><span class="line">    case1 = [20+i for i in range(5)]</span><br><span class="line">    testv = makeup(case1)</span><br><span class="line">    ans = BFS(testv)</span><br><span class="line">    print(f&quot;after &#123;ans[0]&#125; loops, found? &#123;case1 in ans[1]&#125;&quot;,)</span><br></pre></td></tr></table></figure>
+<p>结果显示<strong>after 61254 loops, found? True</strong>。我们的算法没有问题，因此考虑有溢出的情况，我们使用如下代码搜索一组解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def overflow_search():</span><br><span class="line">    for i in range(100):</span><br><span class="line">        ans = BFS(target+(2&lt;&lt;32)*i)</span><br><span class="line">        cnt += ans[0]</span><br><span class="line">        print(f&quot;for overflow-&#123;i&#125;, search &#123;ans[0]&#125; loops for nothing&quot;)</span><br><span class="line"></span><br><span class="line">        if len(ans[1])&gt;0:</span><br><span class="line">            print(f&quot;after &#123;cnt&#125; loops, with overflow&#123;i&#125;,found:&quot;,ans[1])</span><br><span class="line">            return a[1]</span><br></pre></td></tr></table></figure>
+<p>在溢出为11时，我们得到了一组解[4, 25, 3, 7, 17, 3, 34]，再利用伪随机数序列的固定性，我们可以构造如下函数进行求解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//c code</span><br><span class="line"></span><br><span class="line">#include&lt;stdio.h&gt;</span><br><span class="line">#include&lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">unsigned int aa[7] = &#123;4, 25, 3, 7, 17, 3, 34&#125;;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line">     int a = (unsigned int)random()&amp;0xff;</span><br><span class="line">     int i,j;</span><br><span class="line">     for(i = 0; i &lt; a; i++)&#123;</span><br><span class="line">         for(j = 0; j &lt; 7; j++)</span><br><span class="line">             aa[j] ^= random()&amp;0xff;</span><br><span class="line">     &#125;</span><br><span class="line">     for(j = 0; j &lt; 7; j++)&#123;</span><br><span class="line">         printf(&quot;\\x%02x&quot;,aa[j]);</span><br><span class="line">     &#125;</span><br><span class="line">     printf(&quot;\n&quot;);</span><br><span class="line">     return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>flag = {“\x31\x7a\x79\x8c\x56\xaa\x74”}</p>
+
+      
+    </div>
+</article>
+
+    </li>
+  
+    <li>
+      <article class="ListView">
+    <header class="title">
+      
+        <h1>
           <a href="/2020/03/04/fuzzing介绍/">fuzzing介绍</a>
         </h1>
       
@@ -102,7 +316,7 @@
 <li>fuzz Configuration：指fuzz 算法中一组完备的参数集，该参数集可完整描述/控制 fuzz算法的内部状态。该参数集可能是固定的，也有可能随着fuzzing的进行而变动。</li>
 <li>fuzz seed pool: fuzzer使用到的一组初始configuration集合。</li>
 </ul>
-<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="./fig/algorithm1.PNG" alt="fuzzing">。</p>
+<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="/.com//algorithm1.PNG" alt="fuzzing">。</p>
 <p>fuzzing测试指在有限的时间$t_{limit}$内，通过输入的一组configuration集合$\mathbb{C}$，得到一组bug集合$\mathbb{B}$。该过程包含以下关键组件：</p>
 <ul>
 <li>$Preprocess(\mathbb{C})\rightarrow \mathbb{C}$, 在fuzz campaign开始前的前处理过程。该过程可能进行的操作如对代码进行插桩（code instrumentation），对seed pool进行裁剪（seed trim），设置测试执行时间（timing）等，在一些fuzzer中，也可能不存在该步骤。</li>
@@ -118,7 +332,7 @@
 <li>White-box，通过分析PUT内部细节信息来生成testcase，先谷底覆盖率高，发现问题可能性更高，但对PUT内部信息分析过程可能会很复杂，如动态符号执行（DES，Dynamic Symbolic Execution），约束求解 concolic （concrete + symbolic），Dynamic instrumentation，及SMT（Satisfiability modulo theories）等复杂技术。</li>
 <li>Gray-box，通过轻量级的静态/动态信息分析，提升fuzz测试的效率。如利用覆盖率来（coverage）指导fuzzing测试的AFL</li>
 </ul>
-<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="./fig/fuzzer1.PNG" alt="fuzzing"><br><img src="./fig/fuzzer2.PNG" alt="fuzzing"></p>
+<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="/.com//fuzzer1.PNG" alt="fuzzing"><br><img src="/.com//fuzzer2.PNG" alt="fuzzing"></p>
 <h2 id="Preprocess"><a href="#Preprocess" class="headerlink" title="Preprocess"></a>Preprocess</h2><p>常见的preprocess如代码插桩，seed pool选择与优化，生成fuzzing所需的driver等。</p>
 <p>代码插桩可以反馈出PUT执行的内部状态信息，用于指导生成有效的testcase。插桩可以分析静态或动态的。静态插桩发生在代码执行前，通常是编译或链接阶段，overhead较小。动态插桩发生在运行中，可以fuzz到动态链接的库，以及动态加载的内容和内存，对执行效率损失较大，overhead大。另外还有binary level的插桩工具。</p>
 <p>为提升fuzz速度，甚至可以指fuzz代码执行过程的“局部”，例如将代码加载部分作为进程镜像（类似于Android中Zygote），该技术称为“in-memory fuzz”,镜像加载过程也可以放在preprocess中进行。该技术可显著提升fuzz运行速度，但一些发现的bug内内存执行的操作序列相关及相关side effect，bug会难以复现和定位分析。该技术在内核fuzz（in-memory API<br>fuzzing）和AFL中都有应用。</p>
@@ -154,13 +368,24 @@
     2020-01-31
   </time>
   
+  | 
+  <ul>
+    
+  <li class="meta-text">
+  { <a href="/tags/hacking/">hacking</a> }
+  </li>
+
+
+  </ul>
+  
   
 </div>
 
     </header>
     <div>
       
-        
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Radare2</p>
+
       
     </div>
 </article>
