@@ -77,7 +77,7 @@
 <li>fuzz Configuration：指fuzz 算法中一组完备的参数集，该参数集可完整描述/控制 fuzz算法的内部状态。该参数集可能是固定的，也有可能随着fuzzing的进行而变动。</li>
 <li>fuzz seed pool: fuzzer使用到的一组初始configuration集合。</li>
 </ul>
-<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="//ootyoo.github.io/blog/2020/03/04/fuzzing介绍/algorithm1.PNG" alt="fuzzing">。</p>
+<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/algorithm1.PNG" alt="fuzzing">。</p>
 <p>fuzzing测试指在有限的时间$t_{limit}$内，通过输入的一组configuration集合$\mathbb{C}$，得到一组bug集合$\mathbb{B}$。该过程包含以下关键组件：</p>
 <ul>
 <li>$Preprocess(\mathbb{C})\rightarrow \mathbb{C}$, 在fuzz campaign开始前的前处理过程。该过程可能进行的操作如对代码进行插桩（code instrumentation），对seed pool进行裁剪（seed trim），设置测试执行时间（timing）等，在一些fuzzer中，也可能不存在该步骤。</li>
@@ -93,7 +93,7 @@
 <li>White-box，通过分析PUT内部细节信息来生成testcase，先谷底覆盖率高，发现问题可能性更高，但对PUT内部信息分析过程可能会很复杂，如动态符号执行（DES，Dynamic Symbolic Execution），约束求解 concolic （concrete + symbolic），Dynamic instrumentation，及SMT（Satisfiability modulo theories）等复杂技术。</li>
 <li>Gray-box，通过轻量级的静态/动态信息分析，提升fuzz测试的效率。如利用覆盖率来（coverage）指导fuzzing测试的AFL</li>
 </ul>
-<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="//ootyoo.github.io/blog/2020/03/04/fuzzing介绍/fuzzer1.PNG" alt="fuzzing"><br><img src="//ootyoo.github.io/blog/2020/03/04/fuzzing介绍/fuzzer2.PNG" alt="fuzzing"></p>
+<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/fuzzer1.PNG" alt="fuzzing"><br><img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/fuzzer2.PNG" alt="fuzzing"></p>
 <h2 id="Preprocess"><a href="#Preprocess" class="headerlink" title="Preprocess"></a>Preprocess</h2><p>常见的preprocess如代码插桩，seed pool选择与优化，生成fuzzing所需的driver等。</p>
 <p>代码插桩可以反馈出PUT执行的内部状态信息，用于指导生成有效的testcase。插桩可以分析静态或动态的。静态插桩发生在代码执行前，通常是编译或链接阶段，overhead较小。动态插桩发生在运行中，可以fuzz到动态链接的库，以及动态加载的内容和内存，对执行效率损失较大，overhead大。另外还有binary level的插桩工具。</p>
 <p>为提升fuzz速度，甚至可以指fuzz代码执行过程的“局部”，例如将代码加载部分作为进程镜像（类似于Android中Zygote），该技术称为“in-memory fuzz”,镜像加载过程也可以放在preprocess中进行。该技术可显著提升fuzz运行速度，但一些发现的bug内内存执行的操作序列相关及相关side effect，bug会难以复现和定位分析。该技术在内核fuzz（in-memory API<br>fuzzing）和AFL中都有应用。</p>
