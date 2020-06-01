@@ -96,11 +96,11 @@
 <h2 id="r1-硬编码0"><a href="#r1-硬编码0" class="headerlink" title="r1-硬编码0"></a>r1-硬编码0</h2><p>此题中flag硬编码在二进制中，可以在r2中iz直接查看data段字符串</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ r2 r1 -c &quot;aaa;iz&quot;</span><br></pre></td></tr></table></figure>
 <p>显示如下</p>
-<p><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r1-1.png" alt></p>
+<p><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r1-1.png" alt></p>
 <p>通过分析main函数，可以看到直接比较输入和该硬编码字符串，因此得到</p>
 <p>flag={my_password_to_easy}</p>
 <h2 id="r2-硬编码1"><a href="#r2-硬编码1" class="headerlink" title="r2-硬编码1"></a>r2-硬编码1</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; aaa</span><br><span class="line">&gt; fs symbols ;f~sym </span><br><span class="line">&gt; pdf @main</span><br></pre></td></tr></table></figure>
-<p>可以看到输入放到sym.compare_pwd进行比较，我们查看该函数调用strcmp比较输入和sym.get_pwd计算得到的输出。<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r2-1.png" alt><br>进入该函数，可以得到产生flag的机制<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r2-2.png" alt></p>
+<p>可以看到输入放到sym.compare_pwd进行比较，我们查看该函数调用strcmp比较输入和sym.get_pwd计算得到的输出。<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r2-1.png" alt><br>进入该函数，可以得到产生flag的机制<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r2-2.png" alt></p>
 <p>该函数将输入地址中的字符串xor 0x24，输入地址上存放：</p>
 <p>rbp-0x20:0x7b175614497b5d49</p>
 <p>rbp-0x18:0x547b175651474157</p>
@@ -110,16 +110,16 @@
 <p>flag ={my_m0r3_secur3_pwd}</p>
 <p>更简单的做法是使用动态调试</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; ood mytry</span><br><span class="line">&gt; db 0x004006d5;dc</span><br><span class="line">&gt; ps @rdi</span><br></pre></td></tr></table></figure>
-<h2 id="r3-硬编码2"><a href="#r3-硬编码2" class="headerlink" title="r3-硬编码2"></a>r3-硬编码2</h2><p>查看main函数，看到输入经过sym.compare_pwd函数进行比较。该函数调用my_secure_test进行比较，该函数逐个字符进行比较，因此可以得到<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r3-2.png" alt><br>flag={1337_pwd}</p>
-<h2 id="r4-冗余"><a href="#r4-冗余" class="headerlink" title="r4-冗余"></a>r4-冗余</h2><p>直接iz查看字符串，可以看到有9991个明文字符串，因此r1中解法不再适用。查看main函数，可以看到函数sym.check_password中进行比较。<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r4-1.png" alt><br>该函数传入3个参数，分别为local_13890,输入input，0x539, 其中local_13890上的数据由0x4281e0上的地址通过memcpy得到，可以看到该地址上存放的指针指为0x0040085f<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r4-2.png" alt><br>该函数比较输入字符串和输入指针偏移为0x539<em>8+0x539</em>8处的字符串是否相同，因此可以得到flag为</p>
-<p>flag={single_brandy}<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r4-3.png" alt></p>
-<h2 id="r5-混淆"><a href="#r5-混淆" class="headerlink" title="r5-混淆"></a>r5-混淆</h2><p>该文件中用户输入在sym.check_password中进行。该函数中使用到随机数对过程进行混淆<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r5-1.png" alt></p>
-<p>该函数过程反编译如下<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r5-2.png" alt></p>
+<h2 id="r3-硬编码2"><a href="#r3-硬编码2" class="headerlink" title="r3-硬编码2"></a>r3-硬编码2</h2><p>查看main函数，看到输入经过sym.compare_pwd函数进行比较。该函数调用my_secure_test进行比较，该函数逐个字符进行比较，因此可以得到<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r3-2.png" alt><br>flag={1337_pwd}</p>
+<h2 id="r4-冗余"><a href="#r4-冗余" class="headerlink" title="r4-冗余"></a>r4-冗余</h2><p>直接iz查看字符串，可以看到有9991个明文字符串，因此r1中解法不再适用。查看main函数，可以看到函数sym.check_password中进行比较。<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r4-1.png" alt><br>该函数传入3个参数，分别为local_13890,输入input，0x539, 其中local_13890上的数据由0x4281e0上的地址通过memcpy得到，可以看到该地址上存放的指针指为0x0040085f<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r4-2.png" alt><br>该函数比较输入字符串和输入指针偏移为0x539<em>8+0x539</em>8处的字符串是否相同，因此可以得到flag为</p>
+<p>flag={single_brandy}<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r4-3.png" alt></p>
+<h2 id="r5-混淆"><a href="#r5-混淆" class="headerlink" title="r5-混淆"></a>r5-混淆</h2><p>该文件中用户输入在sym.check_password中进行。该函数中使用到随机数对过程进行混淆<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r5-1.png" alt></p>
+<p>该函数过程反编译如下<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r5-2.png" alt></p>
 <p>函数调用的random使用stdin.h中的伪随机数生成函数，由于没有配置种子的步骤，该函数生成的随机数序列是固定的，因此可以模拟执行该段代码，获取flag的值。</p>
-<p>但仔细观察该函数，输入被拷贝到buf中后，在循环中不停减去随机数相关的变量v3。循环终止条件为v4==0,该条件只有在长度为0x28的delta字符数组全0时成立。要达到该条件，原始的delta扣掉v3后应该为全零，即v3=delta。因此，flag[i] = delta[i] + master[i], 长度为0x28.<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r5-3.png" alt></p>
+<p>但仔细观察该函数，输入被拷贝到buf中后，在循环中不停减去随机数相关的变量v3。循环终止条件为v4==0,该条件只有在长度为0x28的delta字符数组全0时成立。要达到该条件，原始的delta扣掉v3后应该为全零，即v3=delta。因此，flag[i] = delta[i] + master[i], 长度为0x28.<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r5-3.png" alt></p>
 <p>我们得到flag={well_done_now_go_on_irc_and_ask_for_more}</p>
 <p>##r6-冗余</p>
-<p>r6中用户输入在sym.check_password中进行校验。该校验过程持续对输入各个字符进行xor操作，并将结果做叠加。<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r6-1.png" alt></p>
+<p>r6中用户输入在sym.check_password中进行校验。该校验过程持续对输入各个字符进行xor操作，并将结果做叠加。<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r6-1.png" alt></p>
 <ul>
 <li><p>内层循环的xor操作循环43次，后42次相互抵消，剩余异或a[i]一次</p>
 </li>
@@ -135,10 +135,10 @@
 <p>r7中校验输入的md5 hash值，md5 hash可以使用字典爆破，该题目中问题在于确定大小端顺序。</p>
 <p>md5值有16byte，存储在两个qword中，分别为</p>
 <p>0x8E590EA70A0785EC和0xBCFA992DE8CB72DA，r2中使用小端表示，因此对应的md5值应为</p>
-<p>‘EC85070AA70E598EDA72CBE82D99FABC’<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r7.png" alt></p>
+<p>‘EC85070AA70E598EDA72CBE82D99FABC’<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r7.png" alt></p>
 <p>flag={md5password}</p>
 <h2 id="r8-未初始化"><a href="#r8-未初始化" class="headerlink" title="r8-未初始化"></a>r8-未初始化</h2><p>该程序希望输入IPV6格式输入：</p>
-<p>XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：，并对输入进行解析和判断，判断输入格式合法后，拷贝并迭代进行md5计算，直接破解要求找到md5的“不动点”，这个已经超出了普通难度的范畴。<br><img src="//ootyoo.github.io/post/2020/05/27/RE-writeup-0/r8-3.png" alt></p>
+<p>XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：XXXX：，并对输入进行解析和判断，判断输入格式合法后，拷贝并迭代进行md5计算，直接破解要求找到md5的“不动点”，这个已经超出了普通难度的范畴。<br><img src="//ootyoo.github.io/2020/05/27/RE-writeup-0/r8-3.png" alt></p>
 <p>我们注意到，如果25行中的循环条件不满足（即j&lt;=0）,则可以跳过烦人的md5计算，结果v5和v6自然而然相等。IPV6格式要求XXXX为0-f的数字，因此在parse_cereal函数中只有2Byte，这样的两个数相加无法造成溢出。</p>
 <p>我们注意到parse_cereal函数中解析时存在逻辑漏洞，对于X为：的情况未进行有效的初始化，在未初始化内存默认为ff的情况下，即可造成溢出。由于在print_cereal中对第6个段有大于0的检查，因此我们可以构造输入</p>
 <p>flag={1111:1111:1111:1111:1111:1111:1111:::::}</p>
@@ -210,7 +210,7 @@
 <li>fuzz Configuration：指fuzz 算法中一组完备的参数集，该参数集可完整描述/控制 fuzz算法的内部状态。该参数集可能是固定的，也有可能随着fuzzing的进行而变动。</li>
 <li>fuzz seed pool: fuzzer使用到的一组初始configuration集合。</li>
 </ul>
-<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/algorithm1.PNG" alt="fuzzing">。</p>
+<h2 id="fuzzing-测试模型"><a href="#fuzzing-测试模型" class="headerlink" title="fuzzing 测试模型"></a>fuzzing 测试模型</h2><p>可以将fuzzing测试抽象为以下过程<img src="//ootyoo.github.io/2020/03/04/fuzzing介绍/algorithm1.PNG" alt="fuzzing">。</p>
 <p>fuzzing测试指在有限的时间$t_{limit}$内，通过输入的一组configuration集合$\mathbb{C}$，得到一组bug集合$\mathbb{B}$。该过程包含以下关键组件：</p>
 <ul>
 <li>$Preprocess(\mathbb{C})\rightarrow \mathbb{C}$, 在fuzz campaign开始前的前处理过程。该过程可能进行的操作如对代码进行插桩（code instrumentation），对seed pool进行裁剪（seed trim），设置测试执行时间（timing）等，在一些fuzzer中，也可能不存在该步骤。</li>
@@ -226,7 +226,7 @@
 <li>White-box，通过分析PUT内部细节信息来生成testcase，先谷底覆盖率高，发现问题可能性更高，但对PUT内部信息分析过程可能会很复杂，如动态符号执行（DES，Dynamic Symbolic Execution），约束求解 concolic （concrete + symbolic），Dynamic instrumentation，及SMT（Satisfiability modulo theories）等复杂技术。</li>
 <li>Gray-box，通过轻量级的静态/动态信息分析，提升fuzz测试的效率。如利用覆盖率来（coverage）指导fuzzing测试的AFL</li>
 </ul>
-<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/fuzzer1.PNG" alt="fuzzing"><br><img src="//ootyoo.github.io/post/2020/03/04/fuzzing介绍/fuzzer2.PNG" alt="fuzzing"></p>
+<p>fuzzing工具分类的全景图可以参考如下两个图表。<br><img src="//ootyoo.github.io/2020/03/04/fuzzing介绍/fuzzer1.PNG" alt="fuzzing"><br><img src="//ootyoo.github.io/2020/03/04/fuzzing介绍/fuzzer2.PNG" alt="fuzzing"></p>
 <h2 id="Preprocess"><a href="#Preprocess" class="headerlink" title="Preprocess"></a>Preprocess</h2><p>常见的preprocess如代码插桩，seed pool选择与优化，生成fuzzing所需的driver等。</p>
 <p>代码插桩可以反馈出PUT执行的内部状态信息，用于指导生成有效的testcase。插桩可以分析静态或动态的。静态插桩发生在代码执行前，通常是编译或链接阶段，overhead较小。动态插桩发生在运行中，可以fuzz到动态链接的库，以及动态加载的内容和内存，对执行效率损失较大，overhead大。另外还有binary level的插桩工具。</p>
 <p>为提升fuzz速度，甚至可以指fuzz代码执行过程的“局部”，例如将代码加载部分作为进程镜像（类似于Android中Zygote），该技术称为“in-memory fuzz”,镜像加载过程也可以放在preprocess中进行。该技术可显著提升fuzz运行速度，但一些发现的bug内内存执行的操作序列相关及相关side effect，bug会难以复现和定位分析。该技术在内核fuzz（in-memory API<br>fuzzing）和AFL中都有应用。</p>
