@@ -154,6 +154,101 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-如何阅读论文" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="2020/12/17/如何阅读论文/">如何阅读论文</a>
+    </h1>
+  
+
+        
+        <a href="2020/12/17/如何阅读论文/" class="archive-article-date">
+  	<time datetime="2020-12-17T12:29:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-12-17</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="如何进入一个领域"><a href="#如何进入一个领域" class="headerlink" title="如何进入一个领域"></a>如何进入一个领域</h2><ul>
+<li>收集论文、媒体文章、博客文章、视频、GitHub知识库等形式，整理为名单列表</li>
+<li>深入研究你认为与主题相关的任何资源，并用tag追踪完成进度，每篇至少10%-20%</li>
+<li>快速读完几篇，从列表中排除低相关性内容，深入追踪完成高相关性条目</li>
+<li>做笔记，对该领域理解的升华。</li>
+</ul>
+<p>5-20篇论文的内容，那么你对该领域的研究就有了基本的理。</p>
+<p>50-100篇论文会让你对这个领域有一个更深入的理解，达到可以展开研究的水平</p>
+<p>每个月至少阅读四篇研究论文，来达到对该领域的理解。随着对论文阅读频次的增加，阅读和理解文章的速度也会越来越快</p>
+<h2 id="如何阅读一篇paper"><a href="#如何阅读一篇paper" class="headerlink" title="如何阅读一篇paper"></a>如何阅读一篇paper</h2><p>多种方式，读多遍(至少3遍)，不要从头到尾一字不落地读</p>
+<ol>
+<li>阅读标题、摘要、文中图表</li>
+<li>introduction, conclusion, another pass through figures and scan through the rest of the content.</li>
+<li>reading the whole sections within the paper but skipping any complicated maths or technique formulations that might be alien to you. During this pass, you can also skip any terms and terminologies that you do not understand or aren’t familiar.</li>
+<li>如若要深入理解一个领域，这些公式和术语还是必须搞懂的</li>
+</ol>
+<h2 id="读完一篇后"><a href="#读完一篇后" class="headerlink" title="读完一篇后"></a>读完一篇后</h2><ul>
+<li>what did the author try to accomplish?</li>
+<li>what are the key elements of this approach?</li>
+<li>what can you use yourself?</li>
+<li>what other ref you need to follow?</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">Research</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="2020/12/17/如何阅读论文/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-heap-overflow-writeup" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -206,6 +301,7 @@
 <p>以上过程中，给<code>auth</code>分配的地址为<code>0x0804c008</code>,则<code>auth-&gt;auth</code>分配的地址为<code>0x0804c028</code>。虽然<code>reset</code>释放了<code>auth</code>，但在<code>login</code>中仍然使用地址为<code>0x0804c028</code>作为<code>auth-&gt;auth</code>进行判断。我们在<code>login</code>前调用两次<code>service</code>,即可将<code>0x0804c028</code>地址覆盖为非0，进而通过校验。</p>
 <h3 id="2-4-heap3"><a href="#2-4-heap3" class="headerlink" title="2.4 heap3"></a>2.4 heap3</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">winner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"that wasn't too bad now, was it? @ %d\n"</span>, time(<span class="literal">NULL</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *a, *b, *c;</span><br><span class="line"></span><br><span class="line">  a = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  b = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  c = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(a, argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(b, argv[<span class="number">2</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(c, argv[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">free</span>(c);</span><br><span class="line">  <span class="built_in">free</span>(b);</span><br><span class="line">  <span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"dynamite failed?\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>本题利用 Doug Lea Malloc (dlmalloc) 算法改变程序执行流。为理解破解过程，我们需要了解该堆分配算法。</p>
+<h3 id="dl-loc分配算法"><a href="#dl-loc分配算法" class="headerlink" title="dl-loc分配算法"></a>dl-loc分配算法</h3><p><a href="http://phrack.org/issues/57/9.html" target="_blank" rel="noopener">once upon a free</a><br><a href="http://phrack.org/issues/57/8.html#article" target="_blank" rel="noopener">Vudo malloc tricks</a></p>
 
       
 
@@ -1247,129 +1343,10 @@
 
 
   
-    <article id="post-Github page + Hexo搭建个人博客" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="2018/07/01/Github page + Hexo搭建个人博客/">Github page + Hexo搭建个人博客</a>
-    </h1>
-  
-
-        
-        <a href="2018/07/01/Github page + Hexo搭建个人博客/" class="archive-article-date">
-  	<time datetime="2018-06-30T17:10:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-07-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一直想搭个简单的个人博客，尝试过VPS等方式，最后选择Github Page+Hexo。该方式优点在于：稳定、免费、文档编辑部署都很简单。该组合可以满足个人博客需要的功能常见功能如:</p>
-<ul>
-<li>个人主页</li>
-<li>文章存档</li>
-<li>相关连接</li>
-<li>站内搜索、评论</li>
-</ul>
-<p>下面对该搭建方式所需的基本要素进行简单介绍。</p>
-<h2 id="组件简介"><a href="#组件简介" class="headerlink" title="组件简介"></a>组件简介</h2><p><strong>Git Pager</strong><br>GitHub Pages本用于介绍托管在GitHub的项目，不过由于其免费稳定，适合用来做搭建博客。Github Pages可以被认为是用户编写的、托管在github上的静态网页。</p>
-<p><strong>NodeJs</strong><br>Nodejs框架基于V8引擎，是目前速度最快的Javascript引擎（如Chrome浏览器就基于V8，可以流畅地同时打开数十个网页）。<br>Nodejs相比与标准的web开发框架Express，可以迅速建立web站点，且比起PHP学习曲线更低、开发效率更高。因此Nodejs非常适合小型网站，和个人主页网站。</p>
-<p><strong>Hexo</strong><br>Hexo是一款基于Node.js的博客框架，其优势在于快速、简洁、高效。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内即可通过模版主题生成静态网页。</p>
-<p>对于一些常用的模块，可以在Hexo中找到相关插件，作为对个人主页的补充。</p>
-<h2 id="基本环境安装"><a href="#基本环境安装" class="headerlink" title="基本环境安装"></a>基本环境安装</h2><ul>
-<li>安装NodeJS，在windows下下载node-v4.4.0-x64.msi并进行安全。</li>
-<li>添加NodeJS安装路径到环境变量Path中。</li>
-<li>安装hexo,可通过如下方式安装</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$  npm config <span class="built_in">set</span> registry https://registry.npm.taobao.org 	<span class="comment">#配置npm源</span></span><br><span class="line">$  npm install -g hexo</span><br></pre></td></tr></table></figure>
-<ul>
-<li>本地资源文件夹及静态网页生</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$  mkidr blog &amp;&amp; <span class="built_in">cd</span> blog 	<span class="comment">#打开并进入资源文件夹</span></span><br><span class="line">$  hexo init				<span class="comment">#初始化</span></span><br><span class="line">$  hexo g					<span class="comment">#Generate 静态网页</span></span><br><span class="line">$  hexo s					<span class="comment">#映射到本地端口</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>访问<a href="http://localhost:4000" target="_blank" rel="noopener">http://localhost:4000</a> 即可看到生成到个人主页。</li>
-</ul>
-<h2 id="更换主题"><a href="#更换主题" class="headerlink" title="更换主题"></a>更换主题</h2><p>默认到Hexo主题为Landscape，主题相关配置文件存放在<code>.\themes</code>路径下。美不美的事情是最复杂的，而且很难用技术手段解决。幸运的是，诸多模版可以简化这个问题。你可以点这里<a href="https://github.com/hexojs/hexo/wiki/Themes" target="_blank" rel="noopener">浏览Hexo主题</a>。</p>
-<ul>
-<li>选择喜欢的主题，down到<code>.\themes</code>路径下。</li>
-<li>修改主资源目录下的<code>_config.yml</code>文件，将其中<code>theme</code>字段修改为你想用的主题。</li>
-<li>修改主资源目录下的<code>_config.yml</code>文件，添加对个人主页的一些说明。</li>
-<li>修改<code>.\themes\_config.yml</code>以及相关资源文件，对主题进行调整。</li>
-</ul>
-<h2 id="添加文章"><a href="#添加文章" class="headerlink" title="添加文章"></a>添加文章</h2><p>添加文章可通过如下命令进行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new test.md 		<span class="comment">#test.md为需要添加的文章资源文件</span></span><br></pre></td></tr></table></figure>
-<p>新生成的文件在路径<code>\source\_posts</code>下，也可在直接在此处新建文件。文件头需满足特定要求（参见<code>hello-world</code>）</p>
-<h2 id="上线部署"><a href="#上线部署" class="headerlink" title="上线部署"></a>上线部署</h2><p>新添加的文件可以通过上面的方式在本地端口访问和查看效果。为部署到线上，需要做以下操作：</p>
-<ul>
-<li>在Github上新建工程，如果你的用户名为somebody，则新建工程名为somebody.github.io</li>
-<li>安装自动部署工具：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-deployer-git  --save</span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改主资源目录下的<code>_config.yml</code>文件，将其中<code>deploy</code>字段添加somebody.github.io工程对于的git路径。</li>
-<li>自动部署命令：<code>hexo d</code></li>
-<li>个人主页对于网址为：<a href="https://somebody.github.io" target="_blank" rel="noopener">https://somebody.github.io</a></li>
-<li>如果有自己的域名，可以将域名与上述地址进行绑定。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此，基本上可以完成个人主页的常见功能部署了。</p>
-<p>最后，一个建议：<strong>常备份</strong></p>
-<p>Enjoy！And Don’t Panic~</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">捣腾</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="2018/07/01/Github page + Hexo搭建个人博客/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="page/2/">2</a><a class="extend next" rel="next" href="page/2/">Next &raquo;</a>
+    </nav>
   
 
 
@@ -1484,15 +1461,19 @@ MathJax.Hub.Queue(function() {
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">crypto</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">捣腾</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">hacking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Research</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">crypto</a>
               </li>
             
             <div class="clearfix"></div>

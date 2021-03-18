@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="云楼主的札记">
 <meta property="og:description" content="Heap-Overflow Writeup1.基本介绍练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings  heap exploitation socket programming  这里介绍后面两个部分。 2. heap overflowheap上数据由程序在运行时通过malloc">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-11-26T14:24:24.835Z">
+<meta property="og:updated_time" content="2020-12-01T14:59:53.411Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="heap-overflow-writeup">
 <meta name="twitter:description" content="Heap-Overflow Writeup1.基本介绍练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings  heap exploitation socket programming  这里介绍后面两个部分。 2. heap overflowheap上数据由程序在运行时通过malloc">
@@ -205,6 +205,7 @@
 <p>以上过程中，给<code>auth</code>分配的地址为<code>0x0804c008</code>,则<code>auth-&gt;auth</code>分配的地址为<code>0x0804c028</code>。虽然<code>reset</code>释放了<code>auth</code>，但在<code>login</code>中仍然使用地址为<code>0x0804c028</code>作为<code>auth-&gt;auth</code>进行判断。我们在<code>login</code>前调用两次<code>service</code>,即可将<code>0x0804c028</code>地址覆盖为非0，进而通过校验。</p>
 <h3 id="2-4-heap3"><a href="#2-4-heap3" class="headerlink" title="2.4 heap3"></a>2.4 heap3</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">winner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"that wasn't too bad now, was it? @ %d\n"</span>, time(<span class="literal">NULL</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *a, *b, *c;</span><br><span class="line"></span><br><span class="line">  a = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  b = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  c = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(a, argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(b, argv[<span class="number">2</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(c, argv[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">free</span>(c);</span><br><span class="line">  <span class="built_in">free</span>(b);</span><br><span class="line">  <span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"dynamite failed?\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>本题利用 Doug Lea Malloc (dlmalloc) 算法改变程序执行流。为理解破解过程，我们需要了解该堆分配算法。</p>
+<h3 id="dl-loc分配算法"><a href="#dl-loc分配算法" class="headerlink" title="dl-loc分配算法"></a>dl-loc分配算法</h3><p><a href="http://phrack.org/issues/57/9.html" target="_blank" rel="noopener">once upon a free</a><br><a href="http://phrack.org/issues/57/8.html#article" target="_blank" rel="noopener">Vudo malloc tricks</a></p>
 
       
 
@@ -313,6 +314,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="../../../12/17/如何阅读论文/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          如何阅读论文
+        
+      </div>
+    </a>
   
   
     <a href="../../25/vpn/" id="article-nav-older" class="article-nav-link-wrap">
@@ -463,15 +473,19 @@ MathJax.Hub.Queue(function() {
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">crypto</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">捣腾</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">hacking</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Research</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">crypto</a>
               </li>
             
             <div class="clearfix"></div>
