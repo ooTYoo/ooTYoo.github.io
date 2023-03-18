@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#333"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#333">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ootyoo.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+  <meta name="description" content="gdb调试介绍 gdb(GNU Project debugger)，使得分析人员可以进入程序执行内部，暂停执行，查看和修改中间状态，通常用于软件调试问题定位。在GDB官网中介绍gdb可以完成的4种主要工作有：  设置程序执行的上下文环境，并执行被调试程序 让程序在特定条件下暂停，如执行到特定地址，满足特定条件等 程序暂停时检查内部状态，如寄存器值，内存堆栈信息等 修改程序内部状态，并继续执行">
+<meta property="og:type" content="website">
+<meta property="og:title" content="gdb 调试cheat-sheet">
+<meta property="og:url" content="http://ootyoo.github.io/2020/01/30/gdb%E8%B0%83%E8%AF%95/index.html">
+<meta property="og:site_name" content="听云楼">
+<meta property="og:description" content="gdb调试介绍 gdb(GNU Project debugger)，使得分析人员可以进入程序执行内部，暂停执行，查看和修改中间状态，通常用于软件调试问题定位。在GDB官网中介绍gdb可以完成的4种主要工作有：  设置程序执行的上下文环境，并执行被调试程序 让程序在特定条件下暂停，如执行到特定地址，满足特定条件等 程序暂停时检查内部状态，如寄存器值，内存堆栈信息等 修改程序内部状态，并继续执行">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-30T14:41:42.000Z">
+<meta property="article:modified_time" content="2022-03-17T06:50:52.280Z">
+<meta property="article:author" content="ootyoo">
+<meta property="article:tag" content="tool-ref">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://ootyoo.github.io/2020/01/30/gdb%E8%B0%83%E8%AF%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://ootyoo.github.io/2020/01/30/gdb%E8%B0%83%E8%AF%95/","path":"2020/01/30/gdb调试/","title":"gdb 调试cheat-sheet"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>gdb 调试cheat-sheet | 听云楼</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+<a target="_blank" rel="noopener" href="https://github.com/ootyoo" class="github-corner" aria-label="follow me on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">听云楼</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">小楼酒醒，星落如雨</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#gdb%E8%B0%83%E8%AF%95%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text"> gdb调试介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text"> 启动调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%AD%E7%82%B9%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text"> 断点相关指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%BA%90%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text"> 查看源代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text"> 打印表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E8%BF%90%E8%A1%8C%E4%BF%A1%E6%81%AF"><span class="nav-number">6.</span> <span class="nav-text"> 查询运行信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">7.</span> <span class="nav-text"> Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ootyoo"
+      src="/images/aa.png">
+  <p class="site-author-name" itemprop="name">ootyoo</p>
+  <div class="site-description" itemprop="description">过诸世界，闻诸道理，见诸人生</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ootyoo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ootyoo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ootyoo.github.io/2020/01/30/gdb%E8%B0%83%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aa.png">
+      <meta itemprop="name" content="ootyoo">
+      <meta itemprop="description" content="过诸世界，闻诸道理，见诸人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听云楼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gdb 调试cheat-sheet
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-30 22:41:42" itemprop="dateCreated datePublished" datetime="2020-01-30T22:41:42+08:00">2020-01-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-03-17 14:50:52" itemprop="dateModified" datetime="2022-03-17T14:50:52+08:00">2022-03-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="gdb调试介绍"><a class="markdownIt-Anchor" href="#gdb调试介绍"></a> gdb调试介绍</h2>
+<p>gdb(GNU Project debugger)，使得分析人员可以进入程序执行内部，暂停执行，查看和修改中间状态，通常用于软件调试问题定位。在<a target="_blank" rel="noopener" href="https://www.gnu.org/software/gdb/">GDB官网</a>中介绍gdb可以完成的4种主要工作有：</p>
+<ul>
+<li>设置程序执行的上下文环境，并执行被调试程序</li>
+<li>让程序在特定条件下暂停，如执行到特定地址，满足特定条件等</li>
+<li>程序暂停时检查内部状态，如寄存器值，内存堆栈信息等</li>
+<li>修改程序内部状态，并继续执行</li>
+</ul>
+<span id="more"></span>
+<p>gdb既可以调试本地的程序，也可用于调试远程程序。在调试远程目标时，远程目标target上需要安装其架构对应版本的gdb-server，在host侧通过gdb-client和server通信，进行远程调试。另外，在很多硬件调试工具中，也支持gdb调试协议，可以通过gdb对应的指令以硬件方式调控目标对象。</p>
+<p>对gdb工具的使用主要包含以下几个方面：</p>
+<ul>
+<li>查看内存，如查看堆栈，寄存器，调用堆栈等信息</li>
+<li>修改内存</li>
+<li>断点管理，设置、删除、使能断点</li>
+<li>改变程序执行流程</li>
+<li>脚本化编程处理</li>
+</ul>
+<h2 id="启动调试"><a class="markdownIt-Anchor" href="#启动调试"></a> 启动调试</h2>
+<p>gdb调试需要使用可执行文件中的符号表等调试信息。 编译时加上-g参数，保留调试信息，否则不能使用GDB进行调试。</p>
+<p>如果没有调试信息，<code>gdb file</code>指令会提示no debugging symbols found。</p>
+<p>gdb还可以用于调试核心转储文件，当程序core dump时，可能会产生core文件，它能够很大程序帮助我们定位问题。但前提是系统没有限制core文件的产生。可以使用命令<code>limit -c</code>查看，如果结果是0，程序core dump了也不会有core文件留下。需要使用如下命令进行设置<code>unlimit-c unlimied</code>。使用如下命令调试core文件<br>
+<code>gdb 程序文件名 core文件名</code></p>
+<p>常用指令有：</p>
+<ul>
+<li>run/r 运行程序，可以带着程序运行所需要的参数</li>
+<li>continue/c，继续运行直到下个断点</li>
+<li>next/n，单步跟踪程序，当遇到函数调用时，也不进入此函数体；此命令同 step 的主要区别是，step 遇到用户自定义的函数，将步进到函数中去运行，而 next 则直接调用函数，不会进入到函数体内</li>
+<li>step/s，单步调试，如果有函数调用，则进入函数；与命令n不同，n是不进入调用的函数的</li>
+<li>until/u，当你厌倦了在一个循环体内单步跟踪时，这个命令可以运行程序直到退出循环体。</li>
+<li>until+行号： 运行至某行，不仅仅用来跳出循环</li>
+<li>finish： 运行程序，直到当前函数完成返回，并打印函数返回时的堆栈地址和返回值及参数值等信息。</li>
+<li>call 函数（参数)：调用程序中可见的函数，并传递“参数”，如：call gdb_test(55)</li>
+<li>quit/q，退出gdb</li>
+</ul>
+<h2 id="断点相关指令"><a class="markdownIt-Anchor" href="#断点相关指令"></a> 断点相关指令</h2>
+<ul>
+<li>break n /b n，在第n行处设置断点（可以带上代码路径和代码名称： b OAGUPDATE.cpp:578）</li>
+<li>b fn1 if a＞b，条件断点设置</li>
+<li>break func/b func，在函数func()的入口处设置断点，如：break cb_button</li>
+<li>delete n，删除第n个断点</li>
+<li>disable 断点号n，暂停第n个断点</li>
+<li>enable 断点号n，开启第n个断点</li>
+<li>clear 行号n：清除第n行的断点</li>
+<li>info b （info breakpoints），显示当前程序的断点设置情况</li>
+<li>delete breakpoints：清除所有断点</li>
+</ul>
+<h2 id="查看源代码"><a class="markdownIt-Anchor" href="#查看源代码"></a> 查看源代码</h2>
+<ul>
+<li>list /l ，其作用就是列出程序的源代码，默认每次显示10行。</li>
+<li>list 行号，将显示当前文件以“行号”为中心的前后10行代码，如：list 12</li>
+<li>list 函数名，将显示“函数名”所在函数的源代码，如：list main</li>
+<li>list ，将接着上一次 list 命令的，输出下边的内容</li>
+</ul>
+<h2 id="打印表达式"><a class="markdownIt-Anchor" href="#打印表达式"></a> 打印表达式</h2>
+<p>print 表达式， 其中“表达式”可以是任何当前正在被测试程序的有效表达式，比如当前正在调试C语言的程序，那么“表达式”可以是任何C语言的有效表达式，包括数字，变量甚至是函数调用。</p>
+<ul>
+<li>print a，将显示整数 a 的值</li>
+<li>print ++a，将把 a 中的值加1,并显示出来</li>
+<li>print name，将显示字符串 name 的值</li>
+<li>print gdb_test(22)：将以整数22作为参数调用 gdb_test() 函数</li>
+<li>print gdb_test(a)：将以变量 a 作为参数调用 gdb_test() 函数</li>
+</ul>
+<p>display 表达式，在单步运行时将非常有用，使用display命令设置一个表达式后，它将在每次单步进行指令后，紧接着输出被设置的表达式及值。如：</p>
+<ul>
+<li>display awatch 表达式，设置一个监视点，一旦被监视的“表达式”的值改变，gdb将强行终止正在被调试的程序。</li>
+<li>watch a</li>
+<li>whatis，查询变量或函数</li>
+<li>info function： 查询函数扩展info</li>
+<li>locals： 显示当前堆栈页的所有变量</li>
+</ul>
+<h2 id="查询运行信息"><a class="markdownIt-Anchor" href="#查询运行信息"></a> 查询运行信息</h2>
+<ul>
+<li>where/bt ，当前运行的堆栈列表</li>
+<li>bt backtrace 显示当前调用堆栈</li>
+<li>up/down 改变堆栈显示的深度</li>
+<li>set args 参数，指定运行时的参数</li>
+<li>show args，查看设置好的参数</li>
+<li>info program，来查看程序的是否在运行，进程号，被暂停的原因</li>
+</ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.gnu.org/software/gdb/">https://www.gnu.org/software/gdb/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.gnu.org/software/gdb/documentation/">https://www.gnu.org/software/gdb/documentation/</a></li>
+<li><a target="_blank" rel="noopener" href="https://sourceware.org/gdb/onlinedocs/gdb/">https://sourceware.org/gdb/onlinedocs/gdb/</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee/辣条</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/alipay.jpg" alt="ootyoo 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/tool-ref/" rel="tag"><i class="fa fa-tag"></i> tool-ref</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/07/02/Bleicherbacher-Orcale-md/" rel="prev" title="RSA oracle Attack">
+                  <i class="fa fa-chevron-left"></i> RSA oracle Attack
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/01/31/radare2/" rel="next" title="radare2 使用cheat-sheet">
+                  radare2 使用cheat-sheet <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ootyoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="400" alpha="0.7" zIndex="-3" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ootyoo","repo":"blog-comment","client_id":"c8a190dfe3835b595b42","client_secret":"be0510f7873e76fc3fa0f9e4b6ff686fd6ef4a0e","admin_user":"ootyoo","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"4592ad64f944cd44211289d28141afdf"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

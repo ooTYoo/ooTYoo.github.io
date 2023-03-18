@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#333"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#333">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ootyoo.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+  <meta name="description" content="很多时候需要梯子去查找外部的资料。当然了科学上网的前提是要遵循基本的法律要求，这也是专业性的一种体现。 做一件事通常有多条路径。我们这里参考的是使用Trojan实现梯子，这种方式的好处是起有效性，通过将流量路由到自己的网站，避免了很多麻烦。 这里简单介绍下基本的步骤，仅供自己遇到问题时进行定位。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="vpn搭建梯子教程">
+<meta property="og:url" content="http://ootyoo.github.io/2020/11/25/vpn/index.html">
+<meta property="og:site_name" content="听云楼">
+<meta property="og:description" content="很多时候需要梯子去查找外部的资料。当然了科学上网的前提是要遵循基本的法律要求，这也是专业性的一种体现。 做一件事通常有多条路径。我们这里参考的是使用Trojan实现梯子，这种方式的好处是起有效性，通过将流量路由到自己的网站，避免了很多麻烦。 这里简单介绍下基本的步骤，仅供自己遇到问题时进行定位。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-25T14:36:35.000Z">
+<meta property="article:modified_time" content="2022-02-19T14:20:02.248Z">
+<meta property="article:author" content="ootyoo">
+<meta property="article:tag" content="setup">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://ootyoo.github.io/2020/11/25/vpn/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://ootyoo.github.io/2020/11/25/vpn/","path":"2020/11/25/vpn/","title":"vpn搭建梯子教程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>vpn搭建梯子教程 | 听云楼</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+<a target="_blank" rel="noopener" href="https://github.com/ootyoo" class="github-corner" aria-label="follow me on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">听云楼</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">小楼酒醒，星落如雨</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text"> 服务器配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text"> linux客户端配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#windows%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">3.</span> <span class="nav-text"> windows客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#macos%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text"> macOS客户端配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#andoid%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">5.</span> <span class="nav-text"> Andoid客户端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ref"><span class="nav-number">6.</span> <span class="nav-text"> Ref</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ootyoo"
+      src="/images/aa.png">
+  <p class="site-author-name" itemprop="name">ootyoo</p>
+  <div class="site-description" itemprop="description">过诸世界，闻诸道理，见诸人生</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ootyoo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ootyoo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ootyoo.github.io/2020/11/25/vpn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aa.png">
+      <meta itemprop="name" content="ootyoo">
+      <meta itemprop="description" content="过诸世界，闻诸道理，见诸人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听云楼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          vpn搭建梯子教程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-11-25 22:36:35" itemprop="dateCreated datePublished" datetime="2020-11-25T22:36:35+08:00">2020-11-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-02-19 22:20:02" itemprop="dateModified" datetime="2022-02-19T22:20:02+08:00">2022-02-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/setup/" itemprop="url" rel="index"><span itemprop="name">setup</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>很多时候需要梯子去查找外部的资料。当然了科学上网的前提是要遵循基本的法律要求，这也是专业性的一种体现。</p>
+<p>做一件事通常有多条路径。我们这里参考的是使用Trojan实现梯子，这种方式的好处是起有效性，通过将流量路由到自己的网站，避免了很多麻烦。</p>
+<p>这里简单介绍下基本的步骤，仅供自己遇到问题时进行定位。</p>
+<span id="more"></span>
+<h2 id="服务器配置"><a class="markdownIt-Anchor" href="#服务器配置"></a> 服务器配置</h2>
+<ol>
+<li>需要购买VPS服务器作为网络流量的出口，这里用的是<a target="_blank" rel="noopener" href="https://my.vultr.com/">vultr</a>。域选择Jap，选择合适的套餐（5$/m的即可，1000G流量）
+<ul>
+<li>位置选择Jap，速度会好些</li>
+<li>OS选择CentOS 7x64</li>
+<li>套餐选择$5/m，该套餐最便宜，且1000GB带宽是够用的。</li>
+<li>需要的话，可以生成ssh-key，将公钥上传到服务端，好处是控制起来很方便。</li>
+<li>完成选择后，的deploy即可，需要花费3min左右时间。</li>
+</ul>
+</li>
+<li>需要有一个域名来搭建搭建网站，这个当前是个伪站，应该也可以做成个人主站。这里从腾讯云购买域名和DNS解析服务。</li>
+<li>在腾讯云中，配置域名DNS的解析地址为vps的ip地址, 一般需要实名认证，配置后2～3天生效。</li>
+<li>vps上安装trojan脚本，该脚本会生成伪站，并生成对应的证书。</li>
+</ol>
+<p>注意：如果系统时间不对，可能会导致网络无法使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ curl -O https://raw.githubusercontent.com/luyiming1016/ladderbackup/master/trojan_centos7.sh </span><br><span class="line">$ <span class="built_in">chmod</span> +x trojan_centos7.sh</span><br><span class="line">$ ./trojan_centos7.sh</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>过程中会提示需要输入域名，输入解析到本VPS的域名</li>
+<li>完成后，会生成域名下的一个下载链接，下载得到trojan-cil压缩包</li>
+<li>打开压缩包，找到config.json，记下remote_addr, remote_port, password几项。</li>
+<li>注意脚本给自己的主站申请了证书，压缩包中的password使用随机数进行md5计算得到。</li>
+<li>安装Ber网页加速器, 之后显示BBR启动成功，服务端架设的步骤就完成了。<br>
+a. 安装Ber加速器时，需要修改内核模块 ，安装指导输入1时失败，导致服务器崩溃，可以先不启用。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /usr/src</span><br><span class="line">$ wget -N --no-check-certificate <span class="string">&quot;https://raw.githubusercontent.com/luyiming1016/ladderbackup/master/tcp.sh&quot;</span> </span><br><span class="line">$ <span class="built_in">chmod</span> +x tcp.sh</span><br><span class="line">$ ./tcp.sh</span><br></pre></td></tr></table></figure>
+<h2 id="linux客户端配置"><a class="markdownIt-Anchor" href="#linux客户端配置"></a> linux客户端配置</h2>
+<p>在Linux客户端需进行配置，以便可以在terminal中使用代理。</p>
+<p>1.下载编译好的(版本)[<a target="_blank" rel="noopener" href="https://github.com/trojan-gfw/trojan/releases">https://github.com/trojan-gfw/trojan/releases</a>]，下载完成后解压。<br>
+2. 使用新的config.json文件替换其中内容，并且替换证书链fullchain.cer<br>
+3. cp trojan /usr/src/trojan<br>
+4. sudo ./trojan<br>
+5. 退出的方式：pkill -f trojan<br>
+6. 检查是否成功 <code>ps aux | grep trojan | grep -v grep </code><br>
+7. 检查是否联通 <code>curl ip.sb --socks5 127.0.0.1:1080</code></p>
+<p>需要在terminal中使用代理</p>
+<ol>
+<li>下载: <code>sudo apt-get install proxychains</code></li>
+<li>配置: <code>sudo vi /etc/proxychains.conf</code></li>
+<li>在最后的ProxyList里注释默认的socks代理： socks4 前增加#表示注释</li>
+<li>在最后的ProxyList里加入Trojan的代理设置： <code>socks5    127.0.0.1    1080</code></li>
+<li>测试本地IP: <code>curl -4 ip.sb</code>，将显示本地IP</li>
+<li>测试代理IP: <code>proxychains curl -4 ip.sb</code>，将显示Trojan代理的IP</li>
+<li>后续使用的命令行需要代理时，只需要在前面加上 proxychains 即可如 <code>proxychains npm install xxx</code></li>
+</ol>
+<h2 id="windows客户端"><a class="markdownIt-Anchor" href="#windows客户端"></a> windows客户端</h2>
+<p>客户端使用<a target="_blank" rel="noopener" href="https://rachel.heartango.com/vtwowt.zip">v2rayN-with-Trojan for window</a></p>
+<ul>
+<li>
+<p>双击打开trojan文件夹下的 v2rayN.exe 文件</p>
+</li>
+<li>
+<p>如客户端运行Trojan报错，请尝试下载以下软件，安装完毕再运行Trojan</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.microsoft.com/zh-CN/download/details.aspx?id=48145">Windows.NET Framework 4.6.2</a></li>
+<li><a target="_blank" rel="noopener" href="https://support.microsoft.com/zh-cn/help/3151800/the-net-framework-4-6-2-offline-installer-for-windows">visual C++ 2015 (x64、x86均安装)</a></li>
+</ul>
+</li>
+<li>
+<p>桌面右下角会出现1个小图标，再次双击，打开 Trojan 设置面板</p>
+</li>
+<li>
+<p>点击「服务器」-「Add [Trojan] server」来添加Trojan节点, 输入trojan-cli包中配置文件的addr，port，password。</p>
+</li>
+<li>
+<p>在服务器一栏勾选上已经配好的服务器，点击启用Http代理，代理模式选pac模式。之后就可以开心的科学上网了。</p>
+</li>
+<li>
+<p>不用的时候，按顺序先把启用http代理勾选取消，之后退出客户端，最后关电脑。</p>
+</li>
+<li>
+<p>如果有没有按顺序操作，再次开机发现上不了网了，请在这里的小电脑点右键，打开“网络和Internet设置”→代理→手动设置代理，将使用代理服务器一栏关闭</p>
+</li>
+</ul>
+<h2 id="macos客户端配置"><a class="markdownIt-Anchor" href="#macos客户端配置"></a> macOS客户端配置</h2>
+<p>在App store中搜索关键词“Shadowrocket/小火箭 ios 共享账号”</p>
+<h2 id="andoid客户端"><a class="markdownIt-Anchor" href="#andoid客户端"></a> Andoid客户端</h2>
+<ul>
+<li><code>https://rachel.heartango.com/igniter-0.1.0-pre-alpha10.apk</code></li>
+<li><code>https://rachel.heartango.com/igniter-0.1.0-pre-alpha9.apk</code><br>
+在其中输入ip,port和密码即可</li>
+</ul>
+<p>得到压缩包后，可以使用该包搭建对应客户端</p>
+<h2 id="ref"><a class="markdownIt-Anchor" href="#ref"></a> Ref</h2>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://luyiminggonnabeok.cn/2018/08/10/%E5%8D%81%E5%88%86%E9%92%9F%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84SSR%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%A2%AF%E5%AD%90">https://luyiminggonnabeok.cn/2018/08/10/十分钟搭建自己的SSR科学上网梯子</a></li>
+<li><a target="_blank" rel="noopener" href="https://xbsj6143.xyz/pagesv2/download-linux.html?v=1.18.1832#Ubuntu">https://xbsj6143.xyz/pagesv2/download-linux.html?v=1.18.1832#Ubuntu</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee/辣条</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/alipay.jpg" alt="ootyoo 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/setup/" rel="tag"><i class="fa fa-tag"></i> setup</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/21/buffer-overflow-writeup/" rel="prev" title="buffer_overflow_writeup">
+                  <i class="fa fa-chevron-left"></i> buffer_overflow_writeup
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/11/26/heap-overflow-writeup/" rel="next" title="heap-overflow-writeup">
+                  heap-overflow-writeup <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ootyoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="400" alpha="0.7" zIndex="-3" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ootyoo","repo":"blog-comment","client_id":"c8a190dfe3835b595b42","client_secret":"be0510f7873e76fc3fa0f9e4b6ff686fd6ef4a0e","admin_user":"ootyoo","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"0420a0263d03286f26ac1f8427261b18"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

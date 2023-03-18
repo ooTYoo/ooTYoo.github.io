@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#333"><meta name="generator" content="Hexo 5.4.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#333">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"ootyoo.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-2}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+  <meta name="description" content="简介 一直想搭个简单的个人博客，尝试过VPS等方式，最后选择Github Page+Hexo。该方式优点在于：稳定、免费、文档编辑部署都很简单。该组合可以满足个人博客需要的功能常见功能如:  个人主页 文章存档 相关连接 站内搜索、评论  下面对该搭建方式所需的基本要素进行简单介绍。并记录使用过程中踩过的坑，方便日后环境崩溃了进行修复。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Github page + Hexo搭建个人博客">
+<meta property="og:url" content="http://ootyoo.github.io/2018/07/01/Github%20page%20+%20Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/index.html">
+<meta property="og:site_name" content="听云楼">
+<meta property="og:description" content="简介 一直想搭个简单的个人博客，尝试过VPS等方式，最后选择Github Page+Hexo。该方式优点在于：稳定、免费、文档编辑部署都很简单。该组合可以满足个人博客需要的功能常见功能如:  个人主页 文章存档 相关连接 站内搜索、评论  下面对该搭建方式所需的基本要素进行简单介绍。并记录使用过程中踩过的坑，方便日后环境崩溃了进行修复。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-06-30T17:10:18.000Z">
+<meta property="article:modified_time" content="2023-03-18T09:51:24.102Z">
+<meta property="article:author" content="ootyoo">
+<meta property="article:tag" content="setup">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://ootyoo.github.io/2018/07/01/Github%20page%20+%20Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://ootyoo.github.io/2018/07/01/Github%20page%20+%20Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/","path":"2018/07/01/Github page + Hexo搭建个人博客/","title":"Github page + Hexo搭建个人博客"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Github page + Hexo搭建个人博客 | 听云楼</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+<a target="_blank" rel="noopener" href="https://github.com/ootyoo" class="github-corner" aria-label="follow me on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#64CEAA; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">听云楼</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">小楼酒醒，星落如雨</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">2</span></a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">22</span></a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text"> 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text"> 组件简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.</span> <span class="nav-text"> 基本环境安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text"> 更换主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%96%87%E7%AB%A0"><span class="nav-number">1.4.</span> <span class="nav-text"> 添加文章</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E7%BA%BF%E9%83%A8%E7%BD%B2"><span class="nav-number">1.5.</span> <span class="nav-text"> 上线部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%BD%BF%E7%94%A8faq"><span class="nav-number">1.6.</span> <span class="nav-text"> hexo使用FAQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.7.</span> <span class="nav-text"> 总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ootyoo"
+      src="/images/aa.png">
+  <p class="site-author-name" itemprop="name">ootyoo</p>
+  <div class="site-description" itemprop="description">过诸世界，闻诸道理，见诸人生</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ootyoo" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ootyoo" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license site-overview-item animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdn.jsdelivr.net/npm/@creativecommons/vocabulary@2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://ootyoo.github.io/2018/07/01/Github%20page%20+%20Hexo%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aa.png">
+      <meta itemprop="name" content="ootyoo">
+      <meta itemprop="description" content="过诸世界，闻诸道理，见诸人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听云楼">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Github page + Hexo搭建个人博客
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-07-01 01:10:18" itemprop="dateCreated datePublished" datetime="2018-07-01T01:10:18+08:00">2018-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-18 17:51:24" itemprop="dateModified" datetime="2023-03-18T17:51:24+08:00">2023-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/setup/" itemprop="url" rel="index"><span itemprop="name">setup</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="简介"><a class="markdownIt-Anchor" href="#简介"></a> 简介</h1>
+<p>一直想搭个简单的个人博客，尝试过VPS等方式，最后选择Github Page+Hexo。该方式优点在于：稳定、免费、文档编辑部署都很简单。该组合可以满足个人博客需要的功能常见功能如:</p>
+<ul>
+<li>个人主页</li>
+<li>文章存档</li>
+<li>相关连接</li>
+<li>站内搜索、评论</li>
+</ul>
+<p>下面对该搭建方式所需的基本要素进行简单介绍。并记录使用过程中踩过的坑，方便日后环境崩溃了进行修复。</p>
+<span id="more"></span>
+<h2 id="组件简介"><a class="markdownIt-Anchor" href="#组件简介"></a> 组件简介</h2>
+<p><strong>Git Pager</strong><br>
+GitHub Pages本用于介绍托管在GitHub的项目，不过由于其免费稳定，适合用来做搭建博客。Github Pages可以被认为是用户编写的、托管在github上的静态网页。</p>
+<p><strong>NodeJs</strong><br>
+Nodejs框架基于V8引擎，是目前速度最快的Javascript引擎（如Chrome浏览器就基于V8，可以流畅地同时打开数十个网页）。<br>
+Nodejs相比与标准的web开发框架Express，可以迅速建立web站点，且比起PHP学习曲线更低、开发效率更高。因此Nodejs非常适合小型网站，和个人主页网站。</p>
+<p><strong>Hexo</strong><br>
+Hexo是一款基于Node.js的博客框架，其优势在于快速、简洁、高效。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内即可通过模版主题生成静态网页。</p>
+<p>对于一些常用的模块，可以在Hexo中找到相关插件，作为对个人主页的补充。</p>
+<h2 id="基本环境安装"><a class="markdownIt-Anchor" href="#基本环境安装"></a> 基本环境安装</h2>
+<ul>
+<li>安装NodeJS，在windows下下载node-v4.4.0-x64.msi并进行安全。</li>
+<li>添加NodeJS安装路径到环境变量Path中。</li>
+<li>安装hexo,可通过如下方式安装</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$  npm config <span class="built_in">set</span> registry https://registry.npm.taobao.org 	<span class="comment">#配置npm源</span></span><br><span class="line">$  npm install -g hexo</span><br></pre></td></tr></table></figure>
+<ul>
+<li>也可以使用nvm对nodejs的版本进行管理。该工具可以方便的管理多个nodejs版本。如果npm遇到问题，可能是版本太老，可以使用如下命令进行升级</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm update </span><br><span class="line">npm install </span><br></pre></td></tr></table></figure>
+<ul>
+<li>本地资源文件夹及静态网页生</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$  mkidr blog &amp;&amp; <span class="built_in">cd</span> blog 	<span class="comment">#打开并进入资源文件夹</span></span><br><span class="line">$  hexo init				<span class="comment">#初始化</span></span><br><span class="line">$  hexo g					<span class="comment">#Generate 静态网页</span></span><br><span class="line">$  hexo s					<span class="comment">#映射到本地端口 </span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>访问<a target="_blank" rel="noopener" href="http://localhost:4000">http://localhost:4000</a> 即可看到生成到个人主页。</li>
+</ul>
+<h2 id="更换主题"><a class="markdownIt-Anchor" href="#更换主题"></a> 更换主题</h2>
+<p>默认到Hexo主题为Landscape，主题相关配置文件存放在<code>./themes</code>路径下。界面美话相关的事情是最复杂的，而且很难用技术手段解决。幸运的是，诸多模版可以简化这个问题。你可以点这里<a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/wiki/Themes">浏览Hexo主题</a>。</p>
+<ul>
+<li>选择喜欢的主题，down到<code>./themes</code>路径下，如Next。</li>
+<li>修改主资源目录下的<code>_config.yml</code>文件，将其中<code>theme</code>字段修改为你想用的主题。</li>
+<li>修改主资源目录下的<code>_config.yml</code>文件，添加对个人主页的一些说明。</li>
+<li>修改<code>./themes/_config.yml</code>以及相关资源文件，对主题进行调整。</li>
+</ul>
+<p>常用的修改及关键字对应如下</p>
+<ol>
+<li>更改语言为中文， <code>language: zh-CN</code>，支持的语言包位于<code>/themes/next/languages</code>下。</li>
+<li>添加菜单按钮（如标签页、分类页等），在next主题下配置文件中，找<code>menu</code>下进行配置</li>
+<li>产生标签页， <code>hexo new page tags</code>, 在tags/index.md头中添加<code>type:&quot;tags&quot;</code></li>
+<li>设置主题<code>scheme: Gemini</code></li>
+<li>添加头像<code>Sidebar Avatar</code></li>
+<li>设置打赏 <code>reward</code></li>
+<li>设置订阅 <code>rss</code></li>
+<li>背景设置 <code>canvas</code></li>
+</ol>
+<h2 id="添加文章"><a class="markdownIt-Anchor" href="#添加文章"></a> 添加文章</h2>
+<p>添加文章可通过如下命令进行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="built_in">test</span> 		<span class="comment">#test为需要添加的文章资源文件标题</span></span><br></pre></td></tr></table></figure>
+<p>新生成的文件在路径<code>/source/_posts</code>下，也可在直接在此处新建文件。文件头需满足特定要求（参见<code>hello-world</code>）</p>
+<h2 id="上线部署"><a class="markdownIt-Anchor" href="#上线部署"></a> 上线部署</h2>
+<p>新添加的文件可以通过上面的方式在本地端口访问和查看效果。为部署到线上，需要做以下操作：</p>
+<ul>
+<li>在Github上新建工程，如果你的用户名为somebody，<a target="_blank" rel="noopener" href="http://xn--somebody-wg0mu33afrf8x9a46cgp6amz3e.github.io">则新建工程名为somebody.github.io</a></li>
+<li>安装自动部署工具：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-deployer-git  --save</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改主资源目录下的<code>_config.yml</code>文件，将其中<code>deploy</code>字段添加somebody.github.io工程对于的git路径。</li>
+<li>自动部署命令：<code>hexo d</code></li>
+<li>个人主页对于网址为：<a target="_blank" rel="noopener" href="https://somebody.github.io">https://somebody.github.io</a></li>
+<li>如果有自己的域名，可以将域名与上述地址进行绑定。</li>
+</ul>
+<h2 id="hexo使用faq"><a class="markdownIt-Anchor" href="#hexo使用faq"></a> hexo使用FAQ</h2>
+<p>作为新手使用hexo会遇到很多坑，这里记录一些常见的问题以及对应的解决方法</p>
+<ul>
+<li>如何使用latex公式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked</span><br><span class="line">npm install hexo-renderer-markdown-it-plus</span><br><span class="line">npm install markdown-it-katex <span class="comment">#Next主题对Katex支持不太好，可以使用mathjax</span></span><br></pre></td></tr></table></figure>
+<p>并在<code>_config.ylm</code>中添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">math:</span><br><span class="line">  ...</span><br><span class="line">  mathjax:</span><br><span class="line">    <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># config of hexo-renderer-markdown-it</span></span><br><span class="line">markdown:</span><br><span class="line">  render:</span><br><span class="line">    html: <span class="literal">true</span></span><br><span class="line">    xhtmlOut: <span class="literal">false</span></span><br><span class="line">    breaks: <span class="literal">true</span></span><br><span class="line">    linkify: <span class="literal">true</span></span><br><span class="line">    typographer: <span class="literal">true</span></span><br><span class="line">    quotes: <span class="string">&#x27;“”‘’&#x27;</span></span><br><span class="line">  plugins:</span><br><span class="line">    - markdown-it-mathjax</span><br></pre></td></tr></table></figure>
+<p>插入公式时，行公式需要以空行开头，并使用<code>\$\$...\$\$</code>， 行内公式在<code>\$..\$</code>之间，前后不能有空格。另外，在公式中使用unicode会错错。在标题中插入公式，可能不会进行渲染。</p>
+<p>在配置文件中，添加<code>every_page: true</code>， 可自动为每篇文章生成公式 .</p>
+<p>在插入图片时，对图片的索引方式需要进行调整。可参考<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f72aaad7b852">这个链接</a></p>
+<ul>
+<li>常用链接
+<ul>
+<li>hexo配置文件 <a target="_blank" rel="noopener" href="https://blog.csdn.net/cpongo3/article/details/98633198">https://blog.csdn.net/cpongo3/article/details/98633198</a></li>
+<li>插件地址: <a target="_blank" rel="noopener" href="https://hexo.io/plugins/">https://hexo.io/plugins/</a></li>
+<li>添加archieve ： <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-archive">https://github.com/hexojs/hexo-generator-archive</a></li>
+<li>设置头像： <a target="_blank" rel="noopener" href="https://blog.garryde.com/archives/50370.html">https://blog.garryde.com/archives/50370.html</a></li>
+<li>git 部署：git: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">https://hexo.io/docs/one-command-deployment.html</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<p>至此，基本上可以完成个人主页的常见功能部署了。</p>
+<p>最后，一个建议：<strong>常备份</strong></p>
+<p>Enjoy！And Don’t Panic~</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>Buy me a coffee/辣条</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/alipay.jpg" alt="ootyoo 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/setup/" rel="tag"><i class="fa fa-tag"></i> setup</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/07/02/Bleicherbacher-Orcale-md/" rel="next" title="RSA oracle Attack">
+                  RSA oracle Attack <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ootyoo</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script size="400" alpha="0.7" zIndex="-3" src="https://cdn.jsdelivr.net/npm/ribbon.js@1.0.2/dist/ribbon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"ootyoo","repo":"blog-comment","client_id":"c8a190dfe3835b595b42","client_secret":"be0510f7873e76fc3fa0f9e4b6ff686fd6ef4a0e","admin_user":"ootyoo","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js","integrity":"sha256-Pmj85ojLaPOWwRtlMJwmezB/Qg8BzvJp5eTzvXaYAfA="},"path_md5":"3a78e5546da9a1672db99a1b157db146"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
